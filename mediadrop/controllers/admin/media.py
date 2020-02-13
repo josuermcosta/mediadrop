@@ -71,7 +71,12 @@ class MediaController(BaseController):
                 The podcast object for rendering if filtering by podcast.
 
         """
+        group = request.perm.user.groups[0].group_name
+        user = request.perm.user.display_name
+
         media = Media.query.options(orm.undefer('comment_count_published'))
+        if group != 'admins':
+            media = media.filter(Media.author_name == user)
 
         if search:
             media = media.admin_search(search)
@@ -90,7 +95,6 @@ class MediaController(BaseController):
             media = media.drafts()
         elif filter == 'published':
             media = media.published()
-
         if category:
             category = fetch_row(Category, slug=category)
             media = media.filter(Media.categories.contains(category))
@@ -155,7 +159,14 @@ class MediaController(BaseController):
                 ``str`` form submit url
 
         """
+        group = request.perm.user.groups[0].group_name
+        user = request.perm.user.display_name
+
         media = fetch_row(Media, id)
+        if id != 'new':
+            if group != 'admins':
+                if media.author_name != user:
+                    media = fetch_row(Media, 'NONE')
 
         if tmpl_context.action == 'save' or id == 'new':
             # Use the values from error_handler or GET for new podcast media

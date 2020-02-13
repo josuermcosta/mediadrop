@@ -29,7 +29,7 @@ class Event(object):
         self.args = args and tuple(args) or None
         self.pre_observers = deque()
         self.post_observers = deque()
-    
+
     @property
     def observers(self):
         return tuple(self.pre_observers) + tuple(self.post_observers)
@@ -55,7 +55,7 @@ class GeneratorEvent(Event):
         except TypeError:
             return False
         return True
-    
+
     def __call__(self, *args, **kwargs):
         for observer in self.observers:
             result = observer(*args, **kwargs)
@@ -94,7 +94,7 @@ class observes(object):
             observers = event.post_observers
             if self.run_before:
                 observers = event.pre_observers
-            
+
             if self.appendleft:
                 observers.appendleft(func)
             else:
@@ -134,22 +134,27 @@ class Environment(object):
     after_route_setup = Event(['mapper'])
     # TODO: deprecation warning
     routes = after_route_setup
-    
+
     routes = Event(['mapper'])
     init_model = Event([])
     loaded = Event(['config'])
-    
+
     # fires when a new database was initialized (tables created)
     database_initialized = Event([])
-    
+
     # an existing database was migrated to a newer DB schema
     database_migrated = Event([])
-    
+
     # the environment has been loaded, the database is ready to use
     database_ready = Event([])
 
 ###############################################################################
 # Controllers
+
+class Users(object):
+
+    class IndexController(object):
+        index = Event(['**kwargs'])
 
 class Admin(object):
 
@@ -202,12 +207,12 @@ class Admin(object):
         edit = Event(['**kwargs'])
         save = Event(['**kwargs'])
         delete = Event(['**kwargs'])
-    
+
     class Players(object):
         HTML5OrFlashPrefsForm = Event(['form'])
         SublimePlayerPrefsForm = Event(['form'])
         YoutubeFlashPlayerPrefsForm = Event(['form'])
-    
+
     class PlayersController(object):
         delete = Event(['**kwargs'])
         disable = Event(['**kwargs'])
@@ -215,7 +220,7 @@ class Admin(object):
         enable = Event(['**kwargs'])
         index = Event(['**kwargs'])
         reorder = Event(['**kwargs'])
-    
+
     class Settings(object):
         AdvertisingForm = Event(['form'])
         AnalyticsForm = Event(['form'])
@@ -227,7 +232,7 @@ class Admin(object):
         PopularityForm = Event(['form'])
         SiteMapsForm = Event(['form'])
         UploadForm = Event(['form'])
-    
+
     class SettingsController(object):
         advertising_save = Event(['**kwargs'])
         analytics_save = Event(['**kwargs'])
@@ -241,12 +246,12 @@ class Admin(object):
         save_api = Event(['**kwargs'])
         sitemaps_save = Event(['**kwargs'])
         upload_save = Event(['**kwargs'])
-    
+
     class Storage(object):
         LocalFileStorageForm = Event(['form'])
         FTPStorageForm = Event(['form'])
         RemoteURLStorageForm = Event(['form'])
-    
+
     class StorageController(object):
         delete = Event(['**kwargs'])
         disable = Event(['**kwargs'])
@@ -294,7 +299,7 @@ class PodcastsController(object):
     feed = Event(['**kwargs'])
 
 class SitemapsController(object):
-    # observers (if they are not marked as "run_before=True") must support pure 
+    # observers (if they are not marked as "run_before=True") must support pure
     # string output (from beaker cache) instead of a dict with template variables.
     google = Event(['page', 'limit', '**kwargs'])
     mrss = Event(['**kwargs'])
@@ -318,7 +323,7 @@ class Media(object):
     after_insert = Event(['instance'])
     before_update = Event(['instance'])
     after_update = Event(['instance'])
-    
+
     # event is triggered when the encoding status changes from 'not encoded' to
     # 'encoded'
     encoding_done = Event(['instance'])

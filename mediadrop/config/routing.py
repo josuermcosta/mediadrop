@@ -112,6 +112,11 @@ def add_routes(map):
         action='view',
         requirements={'action': 'view|rate|comment'})
 
+    # Users
+    map.connect('/users',
+        controller='users/index',
+        action='index')
+
 
     ###############
     # Auth Routes #
@@ -158,7 +163,7 @@ def add_routes(map):
         controller='admin/users',
         action='edit',
         requirements={'id': r'(\d+|new)'})
-    
+
     map.connect('/admin/groups',
         controller='admin/groups',
         action='index')

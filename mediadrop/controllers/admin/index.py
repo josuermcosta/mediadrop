@@ -4,6 +4,7 @@
 # The source code contained in this file is licensed under the GPLv3 or
 # (at your option) any later version.
 # See LICENSE.txt in the main project directory, for more information.
+from pylons import request
 
 import webhelpers.paginate
 
@@ -99,5 +100,8 @@ class IndexController(BaseController):
             query = query.filter_by(reviewed=True, encoded=False)
         elif type == 'awaiting_publishing':
             query = query.filter_by(reviewed=True, encoded=True, publishable=False)
+        group = request.perm.user.groups[0].group_name
+        if group != 'admins':
+            query = query.filter_by(author_name=request.perm.user.display_name)
 
         return webhelpers.paginate.Page(query, page, items_per_page)

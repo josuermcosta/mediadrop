@@ -26,12 +26,12 @@ from mediadrop.lib import helpers
 from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import expose, expose_xhr, observable, paginate, validate_xhr, autocommit
 from mediadrop.lib.email import send_comment_notification
-from mediadrop.lib.helpers import (filter_vulgarity, redirect, url_for, 
+from mediadrop.lib.helpers import (filter_vulgarity, redirect, url_for,
     viewable_media)
 from mediadrop.lib.i18n import _
 from mediadrop.lib.services import Facebook
 from mediadrop.lib.templating import render
-from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment, 
+from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment,
     Tag, Category, AuthorWithIP, Podcast)
 from mediadrop.plugin import events
 

@@ -65,6 +65,9 @@ See LICENSE.txt in the main project directory, for more information.
 						     src="${h.url_for('/admin/images/icons/%s.png' % media.type.encode('utf-8'))}"
 						     alt="${pretty_type}" title="${pretty_type}" />
 					</td>
+					<td py:when="'slug'" headers="h-slug">
+						<a href="${h.url_for(controller='/media', action=media.slug)}">${media.title}</a>
+					</td>
 				</py:for>
 			</tr>
 		</tbody>

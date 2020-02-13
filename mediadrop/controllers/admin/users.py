@@ -113,7 +113,10 @@ class UsersController(BaseController):
 
         user.display_name = display_name
         user.email_address = email_address
-        user.user_name = login_details['user_name']
+        if login_details['user_name'] != 'anonymous':
+            user.user_name = login_details['user_name']
+        else:
+            raise webob.exc.HTTPUnauthorized().exception
 
         password = login_details['password']
         if password is not None and password != '':
