@@ -1,4 +1,4 @@
-# This file is a part of MediaDrop (https://www.mediadrop.video),
+    # This file is a part of MediaDrop (https://www.mediadrop.video),
 # Copyright 2009-2018 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
@@ -123,9 +123,11 @@ class UploadController(BaseController):
             else:
                 # else actually save it!
                 kwargs.setdefault('name')
+                name = request.perm.user.display_name
+                email_X = request.perm.user.email_address
 
                 media_obj = self.save_media_obj(
-                    kwargs['name'], kwargs['email'],
+                    name, email_X,
                     kwargs['title'], kwargs['description'],
                     None, kwargs['file'], kwargs['url'],
                 )
@@ -147,8 +149,10 @@ class UploadController(BaseController):
         kwargs.setdefault('name')
 
         # Save the media_obj!
+        name = request.perm.user.display_name
+        email_X = request.perm.user.email_address
         media_obj = self.save_media_obj(
-            kwargs['name'], kwargs['email'],
+            name, email_X,
             kwargs['title'], kwargs['description'],
             None, kwargs['file'], kwargs['url'],
         )

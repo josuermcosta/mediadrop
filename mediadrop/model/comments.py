@@ -47,6 +47,9 @@ class CommentQuery(Query):
     def reviewed(self, flag=True):
         return self.filter(Comment.reviewed == flag)
 
+    def author_name(self, name=''):
+        return self.filter(Comment.author_name == name)
+
     def trash(self, flag=True):
         filter = sql.and_(Comment.reviewed == True,
                           Comment.publishable == False)

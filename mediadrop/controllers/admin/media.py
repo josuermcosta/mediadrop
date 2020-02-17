@@ -212,7 +212,7 @@ class MediaController(BaseController):
     @validate_xhr(media_form, error_handler=edit)
     @autocommit
     @observable(events.Admin.MediaController.save)
-    def save(self, id, slug, title, author_name, author_email,
+    def save(self, id, slug, title,
              description, notes, podcast, tags, categories,
              delete=None, **kwargs):
         """Save changes or create a new :class:`~mediadrop.model.media.Media` instance.
@@ -225,6 +225,12 @@ class MediaController(BaseController):
 
         """
         media = fetch_row(Media, id)
+        if id == 'new':
+            author_name = request.perm.user.display_name
+            author_email = request.perm.user.email_address
+        else:
+            author_name = media.author_name
+            author_email = media.author_email
 
         if delete:
             self._delete_media(media)
@@ -326,6 +332,7 @@ class MediaController(BaseController):
         # The thumbs may have been created already by add_new_media_file
         if id == 'new' and not has_thumbs(media):
             create_default_thumbs_for(media)
+        print('1')
 
         media.update_status()
 
@@ -433,6 +440,7 @@ class MediaController(BaseController):
             status_form_xhtml = unicode(update_status_form.display(
                 action=url_for(action='update_status'), media=media))
             data['status_form'] = status_form_xhtml
+        print('2')
         return data
 
 
@@ -515,6 +523,7 @@ class MediaController(BaseController):
             file_xhtml[file.id] = unicode(edit_file_form.display(
                 action=url_for(action='edit_file', id=orig.id),
                 file=file))
+        print('3')
 
         return dict(
             success = True,
@@ -582,6 +591,8 @@ class MediaController(BaseController):
                 DBSession.delete(media)
             raise
 
+        print('4')
+
         return dict(
             success = success,
             message = message,
@@ -621,6 +632,7 @@ class MediaController(BaseController):
                 changes made.
 
         """
+        print('5')
         media = fetch_row(Media, id)
         new_slug = None
 
@@ -692,6 +704,7 @@ class MediaController(BaseController):
                 self._delete_media(m)
         else:
             success = False
+        print('6')
 
         return dict(
             success = success,
@@ -700,6 +713,7 @@ class MediaController(BaseController):
         )
 
     def _publish_media(self, media, publish_on=None):
+        print('7')
         media.publishable = True
         media.publish_on = publish_on or media.publish_on or datetime.now()
         media.update_popularity()

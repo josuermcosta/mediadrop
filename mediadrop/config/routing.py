@@ -163,7 +163,7 @@ def add_routes(map):
         controller='admin/users',
         action='edit',
         requirements={'id': r'(\d+|new)'})
-
+    """
     map.connect('/admin/groups',
         controller='admin/groups',
         action='index')
@@ -171,7 +171,7 @@ def add_routes(map):
         controller='admin/groups',
         action='edit',
         requirements={'id': r'(\d+|new)'})
-
+    """
     map.connect('/admin/settings/players',
         controller='admin/players',
         action='index')

@@ -10,7 +10,7 @@ from pylons.controllers.util import abort
 from sqlalchemy import orm
 
 from mediadrop.lib.base import BaseController
-from mediadrop.lib.decorators import (beaker_cache, expose, observable, 
+from mediadrop.lib.decorators import (beaker_cache, expose, observable,
     paginate, validate)
 from mediadrop.lib.helpers import content_type_for_response, url_for, viewable_media
 from mediadrop.lib.i18n import _
@@ -61,7 +61,6 @@ class CategoriesController(BaseController):
 
         if c.category:
             media = media.in_category(c.category)
-            
             response.feed_links.append((
                 url_for(controller='/categories', action='feed', slug=c.category.slug),
                 _('Latest media in %s') % c.category.name

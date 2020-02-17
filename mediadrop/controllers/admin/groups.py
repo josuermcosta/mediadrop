@@ -23,7 +23,7 @@ class GroupsController(BaseController):
     """Admin group actions"""
     allow_only = has_permission('admin')
 
-    @expose('admin/groups/index.html')
+    #@expose('admin/groups/index.html')
     @paginate('groups', items_per_page=50)
     @observable(events.Admin.GroupsController.index)
     def index(self, page=1, **kwargs):
@@ -38,12 +38,12 @@ class GroupsController(BaseController):
                 instances for this page.
 
         """
-        groups = DBSession.query(Group).order_by(Group.display_name, 
+        groups = DBSession.query(Group).order_by(Group.display_name,
                                                  Group.group_name)
         return dict(groups=groups)
 
 
-    @expose('admin/groups/edit.html')
+    #@expose('admin/groups/edit.html')
     @observable(events.Admin.GroupsController.edit)
     def edit(self, id, **kwargs):
         """Display the :class:`~mediadrop.forms.admin.groups.GroupForm` for editing or adding.
@@ -100,7 +100,7 @@ class GroupsController(BaseController):
         if delete:
             DBSession.delete(group)
             redirect(action='index', id=None)
-        
+
         group.display_name = display_name
         group.group_name = group_name
         if permissions:

@@ -36,7 +36,7 @@ class CommentsController(BaseController):
                 'admin/comments/index-table.html')
     @paginate('comments', items_per_page=25)
     @observable(events.Admin.CommentsController.index)
-    def index(self, page=1, search=None, media_filter=None, **kwargs):
+    def index(self, page=1, search=None, media_filter=None,type=None, **kwargs):
         """List comments with pagination and filtering.
 
         :param page: Page number, defaults to 1.
@@ -66,6 +66,7 @@ class CommentsController(BaseController):
         comments = Comment.query.trash(False)\
             .order_by(Comment.reviewed.asc(),
                       Comment.created_on.desc())
+        user = request.perm.user.display_name
 
         # This only works since we only have comments on one type of content.
         # It will need re-evaluation if we ever add others.
@@ -73,6 +74,9 @@ class CommentsController(BaseController):
 
         if search is not None:
             comments = comments.search(search)
+
+        comments_self = comments.author_name(user)
+        comments_videos = comments.filter("media_1.author_name = '{}'".format(user))
 
         media_filter_title = media_filter
         if media_filter is not None:

@@ -157,11 +157,8 @@ See LICENSE.txt in the main project directory, for more information.
 
 		<div class="box">
 			<div class="box-head">
+				<small py:if="media.created_on" class="box-head-sec">Uploaded: ${h.format_date(media.created_on)}</small>
 				<h1 id="media-title">${media.title or _('Add New Media')}</h1>
-				<h1 py:if="media.created_on" class="box-head-sec">Uploaded: ${h.format_date(media.created_on)} <br/>
-				Author Name: ${media.author.name}<br/>
-				Author Email: ${media.author.email}
-				</h1>
 			</div>
 			<form py:replace="media_form(media_values, action=media_action, child_args={'categories': {'category_tree': category_tree}})" />
 		</div>
@@ -187,6 +184,7 @@ See LICENSE.txt in the main project directory, for more information.
 				</div>
 			</div>
 		</div>
+
 		<div class="box">
 			<h1 class="box-head">Thumbnail</h1>
 			<div class="box-content">
@@ -206,6 +204,7 @@ See LICENSE.txt in the main project directory, for more information.
 				<div class="box-error upload-error hidden" />
 			</div>
 		</div>
+
 		<div class="box" py:if="media.id and (settings['comments_engine'] == 'builtin')"
 		     py:replace="comment_stats_box(h.url_for(controller='/admin/comments', media_filter=media.id), query=media.comments)" />
 

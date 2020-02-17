@@ -69,7 +69,7 @@ See LICENSE.txt in the main project directory, for more information.
 	</script>
 </head>
 <body class="menu-comments-on">
-	<div class="box">
+	<div py:if="h.is_admin()" class="box">
 		<div class="box-head clearfix">
 			<div id="quicksearch" class="f-rgt">
 				${search_form(search)}
