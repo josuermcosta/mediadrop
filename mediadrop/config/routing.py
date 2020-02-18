@@ -113,10 +113,21 @@ def add_routes(map):
         requirements={'action': 'view|rate|comment'})
 
     # Users
+    simple_user_paths = '|'.join([
+        'users/media'
+    ])
+
     map.connect('/users',
         controller='users/index',
         action='index')
 
+    map.connect('/{controller}',
+        action='index',
+        requirements={'controller': simple_user_paths})
+
+    map.connect('/{controller}/{id}/{action}',
+        action='edit',
+        requirements={'controller': simple_user_paths, 'id': r'(\d+|new|bulk)'})
 
     ###############
     # Auth Routes #

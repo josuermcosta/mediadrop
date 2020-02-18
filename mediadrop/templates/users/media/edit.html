@@ -123,38 +123,18 @@ See LICENSE.txt in the main project directory, for more information.
 				statusContainer: $('file-upload'),
 				fxProgressBar: {url: '${h.url_for('/admin/images/progressbar/progress.png')}'}
 			});
-
-			var publishStatus = new StatusForm({
-				form: 'update-status-form',
-				error: 'update-status-error',
-				connectionErrorText: '${_('A connection problem occurred, try again.').replace("'", "\\'")}',
-				genericErrorText: '${_('An error has occurred, try again.').replace("'", "\\'")}'
-			});
 			var metaForm = new MediaMetaForm('media-form', {
 				slug: {editText: '${_('Edit').replace("'", "\\'")}', hideText: '${_('Hide').replace("'", "\\'")}'},
 				spinner: {text: '${_('Saving').replace("'", "\\'")}'},
 				success: {text: '${_('Saved!').replace("'", "\\'")}'},
 				failure: {text: '${_('Saving failed. Please try again.').replace("'", "\\'")}'},
 				userError: {text: '${_('Please correct the highlighted errors and save again.').replace("'", "\\'")}'}
-			});
-			mediaMgr = new MediaManager({
-				metaForm: metaForm,
-				statusForm: publishStatus,
-				files: fileMgr,
-				fileUploader: fileMgr.uploader,
-				thumbUploader: thumbUploader,
-				thumbImg: 'thumb-img',
-				isNew: ${int(media.id is None)},
-				mergeURL: '${h.url_for(action='merge_stubs', id=None)}',
-				type: ${(media.type and "'%s'" % media.type) or 'null'},
-				head: 'media-title'
-			});
+			});;
 		});
 	</script>
 </head>
 <body id="media-edit" class="menu-media-on">
 	<div class="column66">
-
 		<div class="box">
 			<div class="box-head">
 				<small py:if="media.created_on" class="box-head-sec">Uploaded: ${h.format_date(media.created_on)}</small>
@@ -162,10 +142,8 @@ See LICENSE.txt in the main project directory, for more information.
 			</div>
 			<form py:replace="media_form(media_values, action=media_action, child_args={'categories': {'category_tree': category_tree}})" />
 		</div>
-
 	</div>
 	<div class="column33">
-		<div py:replace="update_status_form(media=media, action=update_status_action)" />
 
 		<div id="media-files-box" class="box">
 			<div class="box-head"><h1>Files</h1></div>
@@ -204,9 +182,6 @@ See LICENSE.txt in the main project directory, for more information.
 				<div class="box-error upload-error hidden" />
 			</div>
 		</div>
-
-		<div class="box" py:if="media.id and (settings['comments_engine'] == 'builtin')"
-		     py:replace="comment_stats_box(h.url_for(controller='/admin/comments', media_filter=media.id), query=media.comments)" />
 
 	</div>
 

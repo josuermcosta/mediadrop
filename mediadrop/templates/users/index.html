@@ -49,11 +49,6 @@ See LICENSE.txt in the main project directory, for more information.
     </div>
 
     <div class="box">
-      <h1 class="box-head">Awaiting Encoding</h1>
-      <xi:include href="./media/dash-table.html" py:with="media=encode_page.items; id='encode-table';" />
-    </div>
-
-    <div class="box">
       <h1 class="box-head">Awaiting Publishing</h1>
       <xi:include href="./media/dash-table.html" py:with="media=publish_page.items; id='publish-table';" />
     </div>
@@ -66,9 +61,6 @@ See LICENSE.txt in the main project directory, for more information.
         <a href="${h.url_for(controller='upload', action='index')}" class="btn blue block"><span>Add New Media</span></a>
       </div>
     </div>
-
-    <div class="box" py:if="settings['comments_engine'] == 'builtin'"
-      py:replace="comment_stats_box(h.url_for(controller='/users/comments'), query=comments)" />
 
     <div class="box">
       <h1 class="box-head">Recently Published</h1>

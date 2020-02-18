@@ -51,7 +51,7 @@ See LICENSE.txt in the main project directory, for more information.
 						<div py:otherwise="" class="status-publishing">Publishing...</div>
 					</td>
 					<td py:when="'title'" headers="h-title">
-						<a href="${h.url_for(controller='/admin/media', action='edit', id=media.id)}">${media.title}</a>
+						<a href="${h.url_for(controller='/users/media', action='edit', id=media.id)}">${media.title}</a>
 					</td>
 					<td py:when="'comment_count'" class="center" headers="h-comment_count">
 						<a href="${h.url_for(controller='/admin/comments', media_filter=media.id)}">${media.comment_count_published}</a>
