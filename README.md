@@ -12,3 +12,4 @@ If you require help with MediaDrop customization or installation, check out our
 friendly [community forums](http://mediadrop.video/community).
 
 
+### Fix the add files user interface, fix the comments user interface, remove flash from user control.

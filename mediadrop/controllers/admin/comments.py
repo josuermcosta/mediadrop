@@ -160,9 +160,17 @@ class CommentsController(BaseController):
 
         """
         comment = fetch_row(Comment, id)
-        comment.body = body
-        DBSession.add(comment)
-        return dict(
-            success = True,
-            body = comment.body,
-        )
+        print(comment.author_name)
+        print(request.perm.user.display_name)
+        if comment.author_name == request.perm.user.display_name:
+            comment.body = body
+            DBSession.add(comment)
+            return dict(
+                success = True,
+                body = comment.body,
+            )
+        else:
+            return dict(
+                success = False,
+                body = comment.body,
+            )

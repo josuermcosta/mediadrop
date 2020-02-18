@@ -32,7 +32,7 @@ from mediadrop.lib.i18n import _
 from mediadrop.lib.services import Facebook
 from mediadrop.lib.templating import render
 from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment,
-    Tag, Category, AuthorWithIP, Podcast)
+    Tag, Category, AuthorWithIP, Podcast,User)
 from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
@@ -326,15 +326,34 @@ class MediaController(BaseController):
 
         c = Comment()
 
-        name = filter_vulgarity(name)
-        c.author = AuthorWithIP(name, email, request.environ['REMOTE_ADDR'])
-        c.subject = 'Re: %s' % media.title
-        c.body = filter_vulgarity(body)
+        aux = DBSession.query(User).filter(User.display_name == name)
+        i = 0
+        for each in aux:
+            i = 1
+            break
 
         require_review = request.settings['req_comment_approval']
         if not require_review:
             c.reviewed = True
             c.publishable = True
+
+        if request.perm.user.display_name != "Anonymous User":
+            name = request.perm.user.display_name
+            email = request.perm.user.email_address
+            if i != 1:
+                name = filter_vulgarity(name)
+                c.author = AuthorWithIP(name, email, request.environ['REMOTE_ADDR'])
+            else:
+                if require_review:
+                    message = _('Username in use, please login to make a comment ')
+                    return result(True, message=message)
+                else:
+                    return result(True, comment=c)
+
+        c.subject = 'Re: %s' % media.title
+        c.body = filter_vulgarity(body)
+
+
 
         media.comments.append(c)
         DBSession.flush()

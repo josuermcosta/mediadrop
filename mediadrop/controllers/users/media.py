@@ -34,8 +34,6 @@ update_status_form = UpdateStatusForm()
 search_form = SearchForm(action=url_for(controller='/admin/media', action='index'))
 
 class MediaController(BaseController):
-    allow_only = has_permission('edit')
-
     @expose_xhr('users/media/index.html', 'users/media/index-table.html')
     @paginate('media', items_per_page=15)
     @observable(events.Admin.MediaController.index)
@@ -62,7 +60,6 @@ class MediaController(BaseController):
                 The podcast object for rendering if filtering by podcast.
 
         """
-        group = request.perm.user.groups[0].group_name
         user = request.perm.user.display_name
 
         media = Media.query.options(orm.undefer('comment_count_published'))
@@ -145,7 +142,6 @@ class MediaController(BaseController):
                 ``str`` form submit url
 
         """
-        group = request.perm.user.groups[0].group_name
         user = request.perm.user.display_name
 
         media = fetch_row(Media, id)
