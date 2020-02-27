@@ -36,7 +36,6 @@ from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment,
 from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
-
 comment_schema = PostCommentSchema()
 
 class MediaController(BaseController):

@@ -54,6 +54,7 @@ See LICENSE.txt in the main project directory, for more information.
 				<div class="comment-bottom" />
 			</div>
 			<py:if test="action">
+			<div py:if="((request.perm.user.user_name != u'anonymous') == True)">
 				<form id="post-comment-form" action="${action}" method="post" class="required form">
 				<br />
 				<h3>Write a comment</h3>
@@ -61,26 +62,6 @@ See LICENSE.txt in the main project directory, for more information.
 						values = values or {};
 						errors = tmpl_context.form_errors or {};
 					">
-						<li py:if="(request.perm.user and (request.perm.user.user_name != u'anonymous')) == False">
-							<li id="name-container" class="even" py:with="error = errors.get('name', None)">
-								<div py:if="error" class="form-error">${error}</div>
-								<div id="name-label" class="form-label">
-									<label for="name">Name</label>
-								</div>
-								<div class="form-field">
-									<input type="text" name="name" class="textfield required" id="name" value="${values.get('name', None)}" />
-								</div>
-							</li>
-						<li id="email-container" class="odd" py:with="error = errors.get('email', None)">
-							<div py:if="error" class="form-error">${error}</div>
-							<div id="email-label" class="form-label">
-								<label for="email">Email Address (will never be published)</label>
-							</div>
-							<div class="form-field">
-								<input type="text" name="email" class="textfield" id="email" value="${values.get('email', None)}" maxlength="255" />
-							</div>
-						</li>
-						</li>
 						<li id="body-container" class="even" py:with="error = errors.get('body', None)">
 							<div py:if="error" class="form-error">${error}</div>
 							<div id="body-label" class="form-label">
@@ -98,6 +79,7 @@ See LICENSE.txt in the main project directory, for more information.
 						</li>
 					</ul>
 				</form>
+			</div>
 			</py:if>
 		</div>
 	</py:def>

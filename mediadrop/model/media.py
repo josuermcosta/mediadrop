@@ -35,7 +35,7 @@ from mediadrop.lib.compat import any
 from mediadrop.lib.filetypes import AUDIO, AUDIO_DESC, VIDEO, guess_mimetype
 from mediadrop.lib.util import calculate_popularity
 from mediadrop.lib.xhtml import line_break_xhtml, strip_xhtml
-from mediadrop.model import (get_available_slug, SLUG_LENGTH, 
+from mediadrop.model import (get_available_slug, SLUG_LENGTH,
     _mtm_count_property, _properties_dict_from_labels, MatchAgainstClause)
 from mediadrop.model.meta import DBSession, metadata
 from mediadrop.model.authors import Author
@@ -438,7 +438,6 @@ class Media(object):
         defaults = dict(
             title=u'Foo Media',
             author=Author(u'Joe', u'joe@site.example'),
-            
             type = None,
         )
         defaults.update(kwargs)

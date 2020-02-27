@@ -9,7 +9,7 @@ Comment Moderation Controller
 """
 
 from pylons import request
-from sqlalchemy import orm,or_
+from sqlalchemy import orm, or_
 
 from mediadrop.forms.admin import SearchForm
 from mediadrop.forms.admin.comments import EditCommentForm
@@ -30,10 +30,8 @@ search_form = SearchForm(action=url_for(controller='/admin/comments',
                                         action='index'))
 
 class CommentsController(BaseController):
-    allow_only = has_permission('edit')
-
-    @expose_xhr('admin/comments/index.html',
-                'admin/comments/index-table.html')
+    @expose_xhr('users/comments/index.html',
+                'users/comments/index-table.html')
     @paginate('comments', items_per_page=25)
     @observable(events.Admin.CommentsController.index)
     def index(self, page=1, search=None, media_filter=None,type=None, **kwargs):
@@ -67,7 +65,6 @@ class CommentsController(BaseController):
             .order_by(Comment.reviewed.asc(),
                       Comment.created_on.desc())
         user = request.perm.user.display_name
-        group = request.perm.user.groups[0].group_name
 
         # This only works since we only have comments on one type of content.
         # It will need re-evaluation if we ever add others.
@@ -76,16 +73,14 @@ class CommentsController(BaseController):
         if search is not None:
             comments = comments.search(search)
 
+        comments = comments.filter(or_(Comment.author_name == user,Comment.media.has(Media.author_name == user)))
+
         media_filter_title = media_filter
         if media_filter is not None:
-            comments = comments.filter(Comment.media.has(Media.id == media_filter))
-            media_filter_title = Media.query.filter(Media.id == media_filter)
-            for each in media_filter_title:
-                media_filter_title = each.title
+            comments = comments.filter()
+            media_filter_title = DBSession.query(Media.title).get(media_filter)
             media_filter = int(media_filter)
-        else:
-            if group != 'admins':
-                comments = comments.filter(or_(Comment.author_name == user,Comment.media.has(Media.author_name == user)))
+        print()
 
         return dict(
             comments = comments,
@@ -95,63 +90,6 @@ class CommentsController(BaseController):
             search = search,
             search_form = search_form,
         )
-
-    @expose('json', request_method='POST')
-    @autocommit
-    @observable(events.Admin.CommentsController.save_status)
-    def save_status(self, id, status, ids=None, **kwargs):
-        """Approve or delete a comment or comments.
-
-        :param id: A :attr:`~mediadrop.model.comments.Comment.id` if we are
-            acting on a single comment, or ``"bulk"`` if we should refer to
-            ``ids``.
-        :type id: ``int`` or ``"bulk"``
-        :param status: ``"approve"`` or ``"trash"`` depending on what action
-            the user requests.
-        :param ids: An optional string of IDs separated by commas.
-        :type ids: ``unicode`` or ``None``
-        :rtype: JSON dict
-        :returns:
-            success
-                bool
-            ids
-                A list of :attr:`~mediadrop.model.comments.Comment.id`
-                that have changed.
-
-        """
-        group = request.perm.user.groups[0].group_name
-        user = request.perm.user.display_name
-        if id != 'bulk':
-            ids = [id]
-        if not isinstance(ids, list):
-            ids = [ids]
-        if status == 'approve':
-            publishable = True
-        elif status == 'trash':
-            publishable = False
-        else:
-            # XXX: This form should never be submitted without a valid statu
-            raise AssertionError('Unexpected status: %r' % status)
-
-        comments = Comment.query.filter(Comment.id.in_(ids)).all()
-
-        for comment in comments:
-            auth = Media.query.filter(Media.id == comment.media_id)
-            for each in auth:
-                if (group == 'admins' or each.author_name == user) and (publishable == False):
-                    comment.reviewed = True
-                    comment.publishable = False
-                if (group == 'admins' or each.author_name == user) and (publishable == True):
-                    comment.reviewed = True
-                    comment.publishable = True
-            DBSession.add(comment)
-
-        DBSession.flush()
-
-        if request.is_xhr:
-            return dict(success=True, ids=ids)
-        else:
-            redirect(action='index')
 
     @expose('json', request_method='POST')
     @autocommit
@@ -170,8 +108,12 @@ class CommentsController(BaseController):
 
         """
         comment = fetch_row(Comment, id)
+        print(comment.author_name)
+        print(request.perm.user.display_name)
         if comment.author_name == request.perm.user.display_name:
             comment.body = body
+            comment.reviewed = False
+            comment.publishable = False
             DBSession.add(comment)
             return dict(
                 success = True,
