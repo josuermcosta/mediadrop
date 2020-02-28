@@ -114,7 +114,9 @@ def add_routes(map):
 
     # Users
     simple_user_paths = '|'.join([
-        'users/media'
+        'users/media',
+        'users/podcasts',
+        'users/comments'
     ])
 
     map.connect('/users',

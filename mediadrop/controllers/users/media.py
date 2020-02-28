@@ -186,7 +186,6 @@ class MediaController(BaseController):
     def save(self, id, slug, title,
              description, notes, podcast, tags, categories,
              delete=None, **kwargs):
-        print('azul')
         """Save changes or create a new :class:`~mediadrop.model.media.Media` instance.
 
         Form handler the :meth:`edit` action and the

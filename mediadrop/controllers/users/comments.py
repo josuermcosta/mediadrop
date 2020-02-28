@@ -80,7 +80,6 @@ class CommentsController(BaseController):
             comments = comments.filter()
             media_filter_title = DBSession.query(Media.title).get(media_filter)
             media_filter = int(media_filter)
-        print()
 
         return dict(
             comments = comments,
@@ -108,8 +107,6 @@ class CommentsController(BaseController):
 
         """
         comment = fetch_row(Comment, id)
-        print(comment.author_name)
-        print(request.perm.user.display_name)
         if comment.author_name == request.perm.user.display_name:
             comment.body = body
             comment.reviewed = False

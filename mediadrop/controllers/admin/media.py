@@ -332,7 +332,6 @@ class MediaController(BaseController):
         # The thumbs may have been created already by add_new_media_file
         if id == 'new' and not has_thumbs(media):
             create_default_thumbs_for(media)
-        print('1')
 
         media.update_status()
 
@@ -440,7 +439,6 @@ class MediaController(BaseController):
             status_form_xhtml = unicode(update_status_form.display(
                 action=url_for(action='update_status'), media=media))
             data['status_form'] = status_form_xhtml
-        print('2')
         return data
 
 
@@ -523,7 +521,6 @@ class MediaController(BaseController):
             file_xhtml[file.id] = unicode(edit_file_form.display(
                 action=url_for(action='edit_file', id=orig.id),
                 file=file))
-        print('3')
 
         return dict(
             success = True,
@@ -591,7 +588,6 @@ class MediaController(BaseController):
                 DBSession.delete(media)
             raise
 
-        print('4')
 
         return dict(
             success = success,
@@ -632,7 +628,6 @@ class MediaController(BaseController):
                 changes made.
 
         """
-        print('5')
         media = fetch_row(Media, id)
         new_slug = None
 
@@ -704,7 +699,6 @@ class MediaController(BaseController):
                 self._delete_media(m)
         else:
             success = False
-        print('6')
 
         return dict(
             success = success,
@@ -713,7 +707,6 @@ class MediaController(BaseController):
         )
 
     def _publish_media(self, media, publish_on=None):
-        print('7')
         media.publishable = True
         media.publish_on = publish_on or media.publish_on or datetime.now()
         media.update_popularity()
