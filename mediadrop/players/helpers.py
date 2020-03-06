@@ -73,6 +73,7 @@ def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
     :returns: A rendered player.
     """
     player = preferred_player_for_media(media, **kwargs)
+    print(media.get_uris())
     return render('players/html5_or_flash.html', {
         'player': player,
         'media': media,
@@ -143,7 +144,7 @@ def embed_iframe(media, width=400, height=225, frameborder=0, **kwargs):
                   qualified=True)
     tag = Element('iframe', src=src, width=width, height=height,
                   frameborder=frameborder, **kwargs)
-    # some software is known not to work with self-closing iframe tags 
+    # some software is known not to work with self-closing iframe tags
     # ('<iframe ... />'). Several WordPress instances are affected as well as
     # TWiki http://mediadrop.video/community/topic/embed-iframe-closing-tag
     tag.append('')

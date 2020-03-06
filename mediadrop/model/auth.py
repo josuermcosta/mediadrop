@@ -108,7 +108,7 @@ class User(object):
         defaults.update(kwargs)
         for key, value in defaults.items():
             setattr(user, key, value)
-        
+
         DBSession.add(user)
         DBSession.flush()
         return user
@@ -169,7 +169,7 @@ class Group(object):
 
     def __unicode__(self):
         return self.group_name
-    
+
     @classmethod
     def custom_groups(cls, *columns):
         query_object = columns or (Group, )
@@ -181,7 +181,7 @@ class Group(object):
     @classmethod
     def by_name(cls, name):
         return cls.query.filter(cls.group_name == name).first()
-    
+
     @classmethod
     def example(cls, **kwargs):
         defaults = dict(
@@ -207,10 +207,10 @@ class Permission(object):
 
     def __unicode__(self):
         return self.permission_name
-    
+
     def __repr__(self):
         return '<Permission: name=%r>' % self.permission_name
-    
+
     @classmethod
     def example(cls, **kwargs):
         defaults = dict(

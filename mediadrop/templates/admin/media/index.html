@@ -71,6 +71,7 @@ See LICENSE.txt in the main project directory, for more information.
 				<h1 py:when="media_filter == 'unencoded'">Unencoded Media</h1>
 				<h1 py:when="media_filter == 'drafts'">Draft Media</h1>
 				<h1 py:when="media_filter == 'published'">Published Media</h1>
+				<h1 py:when="media_filter == 'hot'">Hotest Media</h1>
 				<h1 py:otherwise="">All Media</h1>
 			</py:choose>
 			<div class="f-rgt">
@@ -112,6 +113,9 @@ See LICENSE.txt in the main project directory, for more information.
 									</li>
 									<li py:with="filter = 'drafts'; selected = media_filter==filter" class="${selected and 'selected' or None}">
 										<a href="${h.url_for(filter=filter, **link_args)}" py:strip="selected"><span py:strip="not selected">Drafts</span></a>
+									</li>
+									<li py:with="filter = 'hot'; selected = media_filter==filter" class="${selected and 'selected' or None}">
+										<a href="${h.url_for(filter=filter, **link_args)}" py:strip="selected"><span py:strip="not selected">Hottest</span></a>
 									</li>
 									<li py:with="filter = 'published'; selected = media_filter==filter" class="${selected and 'selected' or None}">
 										<a href="${h.url_for(filter=filter, **link_args)}" py:strip="selected"><span py:strip="not selected">Published</span></a>

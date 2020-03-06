@@ -110,7 +110,31 @@ media = Table('media', metadata,
         """Play time in seconds."""),
 
     Column('views', Integer, default=0, nullable=False, doc=\
-        """The number of times the public media page has been viewed."""),
+        """The number of times the public media page has been viewed total."""),
+
+    Column('views3', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed last 3 hours."""),
+
+    Column('views6', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 6 hours."""),
+
+    Column('views9', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 9 hours."""),
+
+    Column('views12', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 12 hours."""),
+
+    Column('views15', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 15 hours."""),
+
+    Column('views18', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 18 hours."""),
+
+    Column('views21', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 21 hours."""),
+
+    Column('views24', Integer, default=0, nullable=False, doc=\
+        """The number of times the public media page has been viewed on the prior 24 hours."""),
 
     Column('likes', Integer, default=0, nullable=False, doc=\
         """The number of users who clicked 'i like this'."""),
@@ -253,6 +277,8 @@ def _setup_mysql_fulltext_indexes():
 _setup_mysql_fulltext_indexes()
 
 class MediaQuery(Query):
+
+
     def reviewed(self, flag=True):
         return self.filter(Media.reviewed == flag)
 
@@ -417,6 +443,7 @@ class Media(object):
     Media metadata and a collection of related files.
 
     """
+
     meta = association_proxy('_meta', 'value', creator=MediaMeta)
 
     query = DBSession.query_property(MediaQuery)
@@ -535,6 +562,26 @@ class Media(object):
         # but don't allow the ORM to increment the views too.
         attributes.set_committed_value(self, 'views', self.views + 1)
         return self.views
+
+    def increment_views3(self):
+        """Increment the number of views in the database.
+
+        We avoid concurrency issues by incrementing JUST the views and
+        not allowing modified_on to be updated automatically.
+
+        """
+        if self.id is None:
+            self.views3 += 1
+            return self.views3
+
+        DBSession.execute(media.update()\
+            .values(views3=media.c.views3 + 1)\
+            .where(media.c.id == self.id))
+
+        # Increment the views by one for the rest of the request,
+        # but don't allow the ORM to increment the views too.
+        attributes.set_committed_value(self, 'views3', self.views3 + 1)
+        return self.views3
 
     def increment_likes(self):
         self.likes += 1
@@ -707,7 +754,7 @@ _media_mapper = mapper(
                 )
             ).label('comment_count_published'),
             deferred=True,
-        ),
+        )
 })
 
 # Add properties for counting how many media items have a given Tag

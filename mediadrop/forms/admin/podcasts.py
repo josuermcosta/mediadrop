@@ -18,9 +18,9 @@ class PodcastForm(ListForm):
     id = 'podcast-form'
     css_class = 'form'
     submit_text = None
-    
+
     event = events.Admin.PodcastForm
-    
+
     # required to support multiple named buttons to differentiate between Save & Delete?
     _name = 'vf'
 
@@ -103,8 +103,6 @@ class PodcastForm(ListForm):
         TextField('slug', label_text=N_('Permalink'), validator=NotEmpty, maxlength=50),
         TextField('title', label_text=N_('Title'), validator=TextField.validator(not_empty=True), maxlength=50),
         TextField('subtitle', label_text=N_('Subtitle'), maxlength=255),
-        TextField('author_name', label_text=N_('Author Name'), validator=TextField.validator(not_empty=True), maxlength=50),
-        TextField('author_email', label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=50),
         XHTMLTextArea('description', label_text=N_('Description'), attrs=dict(rows=5, cols=25)),
         ListFieldSet('details', suppress_label=True, legend=N_('Podcast Details:'), css_classes=['details_fieldset'], children=[
             SingleSelectField('explicit', label_text=N_('Explicit?'), options=explicit_options),

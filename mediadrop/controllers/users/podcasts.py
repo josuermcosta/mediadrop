@@ -31,6 +31,7 @@ podcast_form = PodcastForm()
 thumb_form = ThumbForm()
 
 class PodcastsController(BaseController):
+    allow_only = has_permission('edit')
 
     @expose_xhr('users/podcasts/index.html',
                 'users/podcasts/index-table.html')
@@ -47,9 +48,13 @@ class PodcastsController(BaseController):
                 The list of :class:`~mediadrop.model.podcasts.Podcast`
                 instances for this page.
         """
+        user = request.perm.user.display_name
+        group = request.perm.user.groups[0].group_name
         podcasts = DBSession.query(Podcast)\
             .options(orm.undefer('media_count'))\
             .order_by(Podcast.title)
+
+        podcasts = podcasts.filter(Podcast.author_name == user)
         return dict(podcasts=podcasts)
 
 
@@ -79,13 +84,16 @@ class PodcastsController(BaseController):
                 ``str`` form submit url
 
         """
+        user = request.perm.user.display_name
+        group = request.perm.user.groups[0].group_name
         podcast = fetch_row(Podcast, id)
+        if id != 'new' and user != podcast.author.name:
+            return dict(
+            )
 
         if tmpl_context.action == 'save' or id == 'new':
             form_values = kwargs
             user = request.perm.user
-            form_values.setdefault('author_name', user.display_name)
-            form_values.setdefault('author_email', user.email_address)
             form_values.setdefault('feed', {}).setdefault('feed_url',
                 _('Save the podcast to get your feed URL'))
         else:
@@ -94,8 +102,6 @@ class PodcastsController(BaseController):
                 slug = podcast.slug,
                 title = podcast.title,
                 subtitle = podcast.subtitle,
-                author_name = podcast.author and podcast.author.name or None,
-                author_email = podcast.author and podcast.author.email or None,
                 description = podcast.description,
                 details = dict(
                     explicit = explicit_values.get(podcast.explicit),
@@ -124,9 +130,10 @@ class PodcastsController(BaseController):
     @validate(podcast_form, error_handler=edit)
     @autocommit
     @observable(events.Admin.PodcastsController.save)
-    def save(self, id, slug, title, subtitle, author_name, author_email,
+    def save(self, id, slug, title, subtitle,
              description, details, feed, delete=None, **kwargs):
-        """Save changes or create a new :class:`~mediadrop.model.podcasts.Podcast` instance.
+        """
+        Save changes or create a new :class:`~mediadrop.model.podcasts.Podcast` instance.
 
         Form handler the :meth:`edit` action and the
         :class:`~mediadrop.forms.admin.podcasts.PodcastForm`.
@@ -135,7 +142,10 @@ class PodcastsController(BaseController):
         and :meth:`index` after successful deletion.
 
         """
+        user = request.perm.user.display_name
         podcast = fetch_row(Podcast, id)
+        if id != 'new' and podcast.author.name != user:
+            redirect(action='index')
 
         if delete:
             DBSession.delete(podcast)
@@ -143,13 +153,18 @@ class PodcastsController(BaseController):
             delete_thumbs(podcast)
             redirect(action='index', id=None)
 
+        user = request.perm.user.display_name
+        group = request.perm.user.groups[0].group_name
+        user_email = request.perm.user.email_address
+
+
         if not slug:
             slug = title
         if slug != podcast.slug:
             podcast.slug = get_available_slug(Podcast, slug, podcast)
+
         podcast.title = title
         podcast.subtitle = subtitle
-        podcast.author = Author(author_name, author_email)
         podcast.description = description
         podcast.copyright = details['copyright']
         podcast.category = details['category']
@@ -158,9 +173,12 @@ class PodcastsController(BaseController):
         podcast.explicit = {'yes': True, 'clean': False}.get(details['explicit'], None)
 
         if id == 'new':
+            podcast.author = Author(user, user_email)
             DBSession.add(podcast)
             DBSession.flush()
             create_default_thumbs_for(podcast)
+        else:
+                podcast.author = Author(podcast.author.name, podcast.author.email)
 
         redirect(action='edit', id=podcast.id)
 

@@ -6,10 +6,11 @@
 # See LICENSE.txt in the main project directory, for more information.
 
 import simplejson as json
-
+from mediadrop.lib.i18n import N_
 from pylons import request, tmpl_context
 from pylons.controllers.util import abort
 
+from tw.forms import SingleSelectField
 from mediadrop.forms.uploader import UploadForm
 from mediadrop.lib import email
 from mediadrop.lib.base import BaseController
@@ -17,7 +18,7 @@ from mediadrop.lib.decorators import autocommit, expose, observable, validate
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.lib.storage import add_new_media_file
 from mediadrop.lib.thumbnails import create_default_thumbs_for, has_thumbs
-from mediadrop.model import Author, DBSession, get_available_slug, Media
+from mediadrop.model import Author, DBSession, get_available_slug, Media, Podcast
 from mediadrop.plugin import events
 
 import logging
@@ -59,10 +60,18 @@ class UploadController(BaseController):
                 ``dict`` form values, if any
 
         """
+        name = request.perm.user.display_name
         support_emails = request.settings['email_support_requests']
         support_emails = email.parse_email_string(support_emails)
         support_email = support_emails and support_emails[0] or None
+        aux = DBSession.query(Podcast.id, Podcast.title).filter(Podcast.author_name == name)
+        if 'podcast_include' in kwargs:
+            aux = aux.filter(Podcast.id == kwargs['podcast_include']).all()
+        else:
+            aux = aux.all()
 
+        upload_form.children._widget_lst[0] = SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'],
+                                                                     options=lambda: aux)
         return dict(
             legal_wording = request.settings['wording_user_uploads'],
             support_email = support_email,
@@ -129,7 +138,7 @@ class UploadController(BaseController):
                 media_obj = self.save_media_obj(
                     name, email_X,
                     kwargs['title'], kwargs['description'],
-                    None, kwargs['file'], kwargs['url'],
+                    None, kwargs['file'], kwargs['podcast_include']
                 )
                 email.send_media_notification(media_obj)
                 data = dict(
@@ -147,14 +156,18 @@ class UploadController(BaseController):
         """
         """
         kwargs.setdefault('name')
-
-        # Save the media_obj!
         name = request.perm.user.display_name
         email_X = request.perm.user.email_address
+        podcasts = DBSession.query(Podcast.id).filter(Podcast.author_name == name).filter(Podcast.id == kwargs['podcast']).all()
+        print(podcasts)
+        if(podcasts == []):
+            redirect(action='failure')
+
+        # Save the media_obj!
         media_obj = self.save_media_obj(
             name, email_X,
             kwargs['title'], kwargs['description'],
-            None, kwargs['file'], kwargs['url'],
+            None, kwargs['file'], kwargs['podcast_include']
         )
         email.send_media_notification(media_obj)
 
@@ -171,29 +184,33 @@ class UploadController(BaseController):
     def failure(self, **kwargs):
         return dict()
 
-    def save_media_obj(self, name, email, title, description, tags, uploaded_file, url):
+    def save_media_obj(self, name, email, title, description, tags, uploaded_file, podcast):
         # create our media object as a status-less placeholder initially
-        media_obj = Media()
-        media_obj.author = Author(name, email)
-        media_obj.title = title
-        media_obj.slug = get_available_slug(Media, title)
-        media_obj.description = description
-        if request.settings['wording_display_administrative_notes']:
-            media_obj.notes = request.settings['wording_administrative_notes']
-        media_obj.set_tags(tags)
+        if uploaded_file.filename[-3:] == 'mp3':
+            media_obj = Media()
+            media_obj.author = Author(name, email)
+            media_obj.title = title
+            media_obj.slug = get_available_slug(Media, title)
+            media_obj.description = description
+            media_obj.podcast_id = podcast
+            if request.settings['wording_display_administrative_notes']:
+                media_obj.notes = request.settings['wording_administrative_notes']
+            media_obj.set_tags(tags)
 
-        # Give the Media object an ID.
-        DBSession.add(media_obj)
-        DBSession.flush()
+            # Give the Media object an ID.
+            DBSession.add(media_obj)
+            DBSession.flush()
 
-        # Create a MediaFile object, add it to the media_obj, and store the file permanently.
-        media_file = add_new_media_file(media_obj, file=uploaded_file, url=url)
+            # Create a MediaFile object, add it to the media_obj, and store the file permanently.
+            media_file = add_new_media_file(media_obj, file=uploaded_file)
 
-        # The thumbs may have been created already by add_new_media_file
-        if not has_thumbs(media_obj):
-            create_default_thumbs_for(media_obj)
+            # The thumbs may have been created already by add_new_media_file
+            if not has_thumbs(media_obj):
+                create_default_thumbs_for(media_obj)
 
-        media_obj.update_status()
-        DBSession.flush()
+            media_obj.update_status()
+            DBSession.flush()
 
-        return media_obj
+            return media_obj
+        else:
+            redirect(action='failure')

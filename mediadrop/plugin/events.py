@@ -185,6 +185,7 @@ class Admin(object):
         update_status = Event(['**kwargs'])
 
     class PodcastsController(object):
+        media = Event(['**kwargs'])
         index = Event(['**kwargs'])
         edit = Event(['**kwargs'])
         save = Event(['**kwargs'])

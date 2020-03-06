@@ -73,17 +73,24 @@ class MediaController(BaseController):
         """
         group = request.perm.user.groups[0].group_name
         user = request.perm.user.display_name
-
         media = Media.query.options(orm.undefer('comment_count_published'))
+
         if group != 'admins':
             media = media.filter(Media.author_name == user)
 
         if search:
             media = media.admin_search(search)
-        else:
+        elif filter != 'hot':
             media = media.order_by_status()\
                          .order_by(Media.publish_on.desc(),
                                    Media.modified_on.desc())
+        else:
+            media = media.order_by(Media.views3 + Media.views6 +
+                                   Media.views9 + Media.views12 +
+                                   Media.views15 + Media.views18 +
+                                   Media.views21 + Media.views24.desc())
+
+        print(media)
 
         if not filter:
             pass
@@ -94,6 +101,8 @@ class MediaController(BaseController):
         elif filter == 'drafts':
             media = media.drafts()
         elif filter == 'published':
+            media = media.published()
+        elif filter == 'hot':
             media = media.published()
         if category:
             category = fetch_row(Category, slug=category)
@@ -320,16 +329,16 @@ class MediaController(BaseController):
             DBSession.flush()
         else:
             media = fetch_row(Media, id)
-
         try:
             media_file = add_new_media_file(media, file, url)
         except UserStorageError as e:
             return dict(success=False, message=e.message)
         if media.slug.startswith('_stub_'):
-            media.title = media_file.display_name
+            media.title = file.filename
             media.slug = get_available_slug(Media, '_stub_' + media.title)
 
         # The thumbs may have been created already by add_new_media_file
+        print('i am here')
         if id == 'new' and not has_thumbs(media):
             create_default_thumbs_for(media)
 
@@ -338,11 +347,10 @@ class MediaController(BaseController):
         # Render some widgets so the XHTML can be injected into the page
         edit_form_xhtml = unicode(edit_file_form.display(
             action=url_for(action='edit_file', id=media.id),
-            file=media_file))
+            file= media_file))
         status_form_xhtml = unicode(update_status_form.display(
             action=url_for(action='update_status', id=media.id),
             media=media))
-
         data = dict(
             success = True,
             media_id = media.id,
@@ -533,10 +541,9 @@ class MediaController(BaseController):
 
 
     @expose('json', request_method='POST')
-    @validate(thumb_form, error_handler=json_error)
     @autocommit
     @observable(events.Admin.MediaController.save_thumb)
-    def save_thumb(self, id, thumb, **kwargs):
+    def save_thumb(self, id, thumb=None, **kwargs):
         """Save a thumbnail uploaded with :class:`~mediadrop.forms.admin.ThumbForm`.
 
         :param id: Media ID. If ``"new"`` a new Media stub is created.
@@ -554,20 +561,25 @@ class MediaController(BaseController):
                 important if a new media has just been created.
 
         """
+        user = request.perm.user
         if id == 'new':
             media = Media()
             user = request.perm.user
             media.author = Author(user.display_name, user.email_address)
-            media.title = os.path.basename(thumb.filename)
+            media.title = os.path.basename(kwargs['file'].filename)
             media.slug = get_available_slug(Media, '_stub_' + media.title)
             DBSession.add(media)
             DBSession.flush()
         else:
             media = fetch_row(Media, id)
+            group = request.perm.user.groups[0].group_name
+            if media.author.name != user.display_name and group != 'admins':
+                raise
+
 
         try:
             # Create JPEG thumbs
-            create_thumbs_for(media, thumb.file, thumb.filename)
+            create_thumbs_for(media, kwargs['file'].file, kwargs['file'].filename)
             success = True
             message = None
         except IOError, e:
@@ -578,7 +590,7 @@ class MediaController(BaseController):
                 message = _('Permission denied, cannot write file')
             elif e.message == 'cannot identify image file':
                 message = _('Unsupported image type: %s') \
-                    % os.path.splitext(thumb.filename)[1].lstrip('.')
+                    % os.path.splitext(kwargs['file'].filename)[1].lstrip('.')
             elif e.message == 'cannot read interlaced PNG files':
                 message = _('Interlaced PNGs are not supported.')
             else:

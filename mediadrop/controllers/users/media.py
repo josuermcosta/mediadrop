@@ -145,20 +145,25 @@ class MediaController(BaseController):
         user = request.perm.user.display_name
 
         media = fetch_row(Media, id)
-        if media.author_name != user:
-            media = fetch_row(Media, 'NONE')
-        # Pull the defaults from the media item
-        media_values = dict(
-            podcast = media.podcast_id,
-            slug = media.slug,
-            title = media.title,
-            author_name = media.author.name,
-            author_email = media.author.email,
-            description = media.description,
-            tags = ', '.join((tag.name for tag in media.tags)),
-            categories = [category.id for category in media.categories],
-            notes = media.notes,
-        )
+        if id != 'new':
+            if media.author_name != user:
+                media = fetch_row(Media, 'NONE')
+            # Pull the defaults from the media item
+            media_values = dict(
+                podcast = media.podcast_id,
+                slug = media.slug,
+                title = media.title,
+                author_name = media.author.name,
+                author_email = media.author.email,
+                description = media.description,
+                tags = ', '.join((tag.name for tag in media.tags)),
+                categories = [category.id for category in media.categories],
+                notes = media.notes,
+            )
+        else:
+            media_values = dict(
+                )
+
 
         # Re-verify the state of our Media object in case the data is nonsensical
         media.update_status()

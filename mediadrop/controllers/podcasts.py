@@ -11,7 +11,7 @@ from sqlalchemy import orm
 from mediadrop.lib.auth.util import viewable_media
 from mediadrop.lib import helpers
 from mediadrop.lib.base import BaseController
-from mediadrop.lib.decorators import (beaker_cache, expose, observable, 
+from mediadrop.lib.decorators import (beaker_cache, expose, observable,
     paginate, validate)
 from mediadrop.lib.helpers import content_type_for_response, url_for, redirect
 from mediadrop.model import Media, Podcast, fetch_row
@@ -84,7 +84,7 @@ class PodcastsController(BaseController):
         episodes, show = helpers.filter_library_controls(episodes, show)
 
         episodes = viewable_media(episodes)
-        
+
         if request.settings['rss_display'] == 'True':
             response.feed_links.append(
                (url_for(action='feed'), podcast.title)

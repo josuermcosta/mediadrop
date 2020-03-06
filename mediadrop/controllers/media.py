@@ -81,6 +81,8 @@ class MediaController(BaseController):
         if tag:
             tag = fetch_row(Tag, slug=tag)
             media = media.filter(Media.tags.contains(tag))
+        print(request.settings['rss_display'])
+        print(response.feed_links)
 
         if (request.settings['rss_display'] == 'True') and (not (q or tag)):
             if show == 'latest':
@@ -216,6 +218,12 @@ class MediaController(BaseController):
             # Always view podcast media from a URL that shows the context of the podcast
             if url_for() != url_for(podcast_slug=media.podcast.slug):
                 redirect(podcast_slug=media.podcast.slug)
+
+        try:
+            media.increment_views3()
+            DBSession.commit()
+        except OperationalError:
+            DBSession.rollback()
 
         try:
             media.increment_views()

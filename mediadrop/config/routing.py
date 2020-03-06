@@ -131,6 +131,7 @@ def add_routes(map):
         action='edit',
         requirements={'controller': simple_user_paths, 'id': r'(\d+|new|bulk)'})
 
+
     ###############
     # Auth Routes #
     ###############
