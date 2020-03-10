@@ -91,6 +91,11 @@ def add_routes(map):
         action='index')
 
     # Media
+    map.connect('/media/{id}/final_view',
+        controller='media',
+        action='final_view',
+        requirements={'id': r'\d+'})
+
     map.connect('/media/{slug}/{action}',
         controller='media',
         action='view')

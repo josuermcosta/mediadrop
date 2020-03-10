@@ -20,6 +20,7 @@ See LICENSE.txt in the main project directory, for more information.
 <xi:include py:for="tmpl in value_of('plugin_templates', ())" href="${tmpl}" />
 
 <head py:match="head">
+<script src="https://cdn.podlove.org/web-player/5.x/embed.js"></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="language" content="${translator.locale.territory and '%s-%s' % (translator.locale.language, translator.locale.territory.lower()) or translator.locale.language}" />
 	<link href="${h.url_for('/styles/base.css')}" media="screen" rel="stylesheet" type="text/css" />
@@ -59,7 +60,6 @@ See LICENSE.txt in the main project directory, for more information.
 	body_class = attrs.get('class', '').split(' ');
 	advertising_banner_html = settings['advertising_banner_html'];
 ">
-
     <div class="mcore-login-box clearfix" py:if="settings.get('appearance_display_login')">
         <div class="mcore-login-bar">
             <py:choose>

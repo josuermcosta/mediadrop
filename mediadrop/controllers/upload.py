@@ -159,7 +159,6 @@ class UploadController(BaseController):
         name = request.perm.user.display_name
         email_X = request.perm.user.email_address
         podcasts = DBSession.query(Podcast.id).filter(Podcast.author_name == name).filter(Podcast.id == kwargs['podcast']).all()
-        print(podcasts)
         if(podcasts == []):
             redirect(action='failure')
 
@@ -167,7 +166,7 @@ class UploadController(BaseController):
         media_obj = self.save_media_obj(
             name, email_X,
             kwargs['title'], kwargs['description'],
-            None, kwargs['file'], kwargs['podcast_include']
+            None, kwargs['file'], kwargs['podcast']
         )
         email.send_media_notification(media_obj)
 
@@ -184,15 +183,16 @@ class UploadController(BaseController):
     def failure(self, **kwargs):
         return dict()
 
-    def save_media_obj(self, name, email, title, description, tags, uploaded_file, podcast):
+    def save_media_obj(self, name, email, title, description, tags, uploaded_file, podcast_include):
         # create our media object as a status-less placeholder initially
+        print(podcast_include)
         if uploaded_file.filename[-3:] == 'mp3':
             media_obj = Media()
             media_obj.author = Author(name, email)
             media_obj.title = title
             media_obj.slug = get_available_slug(Media, title)
             media_obj.description = description
-            media_obj.podcast_id = podcast
+            media_obj.podcast_id = podcast_include
             if request.settings['wording_display_administrative_notes']:
                 media_obj.notes = request.settings['wording_administrative_notes']
             media_obj.set_tags(tags)

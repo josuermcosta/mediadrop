@@ -74,6 +74,7 @@ def fetch_row(mapped_class, pk=None, extra_filter=None, **kwargs):
     :raises webob.exc.HTTPNotFound: If no result is found
 
     """
+    print(kwargs)
     if pk == 'new':
         inst = mapped_class()
         return inst
@@ -249,6 +250,7 @@ __all__ = [
     'Media', 'MediaFile',
     'Podcast',
     'PlayerPrefs',
+    'Views_Counter',
 ]
 
 from mediadrop.model.auth import User, Group, Permission
@@ -257,7 +259,7 @@ from mediadrop.model.comments import Comment
 from mediadrop.model.settings import Setting, MultiSetting
 from mediadrop.model.tags import Tag
 from mediadrop.model.categories import Category
-from mediadrop.model.media import Media, MediaFile
+from mediadrop.model.media import Media, MediaFile,Views_Counter
 from mediadrop.model.podcasts import Podcast
 from mediadrop.model.players import PlayerPrefs, players, cleanup_players_table
 from mediadrop.model.storage import storage

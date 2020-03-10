@@ -173,6 +173,18 @@ media = Table('media', metadata,
     mysql_charset='utf8',
 )
 
+views = Table('view_check',metadata,
+    Column('view_id', Integer, autoincrement=True, primary_key=True),
+    Column('media_id', Integer, ForeignKey('media.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
+    Column('csrftoken', Unicode(80), nullable=False),
+    Column('validated',Boolean,default=False, nullable=False),
+    Column('updated_date',DateTime, nullable=False),
+    mysql_engine='InnoDB',
+    mysql_charset='utf8',
+)
+
+
+
 media_meta = Table('media_meta', metadata,
     Column('id', Integer, autoincrement=True, primary_key=True),
     Column('media_id', Integer, ForeignKey('media.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
@@ -259,6 +271,20 @@ _fulltext_indexes = {
         media_fulltext.c.description_plain,
     ),
 }
+
+class Views_Counter(object):
+    """
+    Podcast Metadata
+
+    """
+    query = DBSession.query_property()
+
+    # TODO: replace '_thumb_dir' with something more generic, like 'name',
+    #       so that its other uses throughout the code make more sense.
+    _thumb_dir = 'view_check'
+
+    def __repr__(self):
+        return '<view: %r>' % self.view_id
 
 def _setup_mysql_fulltext_indexes():
     for name, cols in _fulltext_indexes.iteritems():
@@ -788,3 +814,8 @@ _categories_mapper.add_properties(_properties_dict_from_labels(
         ),
     ]),
 ))
+
+mapper(
+    Views_Counter, views,
+    extension=events.MapperObserver(events.Views_Counter)
+)

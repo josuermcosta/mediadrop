@@ -135,6 +135,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 	<script type="text/javascript" language="javascript">
 		var video = document.getElementById("${media.slug}-player");
+	  var a = '/media/${media.id}/final_view'
   <!--
 		var timeStarted = -1;
 		var timePlayed = 0;
@@ -157,26 +158,47 @@ See LICENSE.txt in the main project directory, for more information.
 
 		function getDuration() {
 		  duration = video.duration;
+			foo();
 		}
 		function videoStoppedPlaying(event) {
 		  // Start time less then zero means stop event was fired vidout start event
 		  if(timeStarted>0) {
-		    var playedFor = new Date().getTime()/1000 - timeStarted;
-		    timeStarted = -1;
+		  	var data = new Date().getTime()/1000;
+		    var playedFor = data - timeStarted;
 		    // add the new ammount of seconds played
 		    timePlayed+=playedFor;
 		  }
-		  // Count as complete only if end of video was reached
-		  if(timePlayed>=duration && event.type=="ended" && completed == 0) {
-		    completed = 1
-		    console.log(completed)
+		  if (event == undefined)
+		  {
+		  	timeStarted = data;
 		  }
+		  else
+		  {
+		    timeStarted = -1;
+		  }
+		  // Count as complete only if end of video was reached
 		}
 		video.addEventListener("ended", videoStoppedPlaying);
 		video.addEventListener("pause", videoStoppedPlaying);
 
 		video.addEventListener("play", videoStartedPlaying);
 		video.addEventListener("playing", videoStartedPlaying);
+		function foo() {
+
+		    // your function code here
+		    videoStoppedPlaying();
+		    if(duration - 2 < timePlayed || timePlayed > 15)
+		    {
+		    	const Http = new XMLHttpRequest();
+		    	console.log(a)
+					Http.open("POST", a);
+					Http.send();
+		    }
+		    else
+		    {
+			    setTimeout(foo, 1000);
+		    }
+		}
 	//-->
 	</script>
 </body>

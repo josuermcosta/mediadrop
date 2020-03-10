@@ -16,7 +16,7 @@ from paste.fileapp import FileApp
 from paste.util import mimeparse
 from pylons import config, request, response
 from pylons.controllers.util import abort, forward
-from sqlalchemy import orm, sql
+from sqlalchemy import orm, sql, or_
 from sqlalchemy.exc import OperationalError
 from webob.exc import HTTPNotAcceptable, HTTPNotFound
 
@@ -32,7 +32,7 @@ from mediadrop.lib.i18n import _
 from mediadrop.lib.services import Facebook
 from mediadrop.lib.templating import render
 from mediadrop.model import (DBSession, fetch_row, Media, MediaFile, Comment,
-    Tag, Category, AuthorWithIP, Podcast,User)
+    Tag, Category, AuthorWithIP, Podcast, User, Views_Counter)
 from mediadrop.plugin import events
 
 log = logging.getLogger(__name__)
@@ -81,8 +81,6 @@ class MediaController(BaseController):
         if tag:
             tag = fetch_row(Tag, slug=tag)
             media = media.filter(Media.tags.contains(tag))
-        print(request.settings['rss_display'])
-        print(response.feed_links)
 
         if (request.settings['rss_display'] == 'True') and (not (q or tag)):
             if show == 'latest':
@@ -219,17 +217,20 @@ class MediaController(BaseController):
             if url_for() != url_for(podcast_slug=media.podcast.slug):
                 redirect(podcast_slug=media.podcast.slug)
 
-        try:
-            media.increment_views3()
-            DBSession.commit()
-        except OperationalError:
-            DBSession.rollback()
+        views = Views_Counter.query.filter(Views_Counter.media_id == media.id)
+        csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
+        views = views.filter(Views_Counter.csrftoken == csrf)
+        views = views.all()
 
-        try:
-            media.increment_views()
-            DBSession.commit()
-        except OperationalError:
-            DBSession.rollback()
+        if not views:
+            try:
+                temp = Views_Counter()
+                temp.media_id = media.id
+                temp.csrftoken = csrf
+                DBSession.add(temp)
+                DBSession.commit()
+            except:
+                DBSession.rollback()
 
         if request.settings['comments_engine'] == 'facebook':
             response.facebook = Facebook(request.settings['facebook_appid'])
@@ -244,6 +245,35 @@ class MediaController(BaseController):
             comment_form_action = url_for(action='comment'),
             comment_form_values = kwargs,
         )
+
+
+    @expose(request_method="POST")
+    @autocommit
+    @observable(events.MediaController.final_view)
+    def final_view(self,id,**kwargs):
+        try:
+            csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
+            temp = Views_Counter.query.filter(Views_Counter.media_id==id)\
+                                      .filter(Views_Counter.csrftoken==csrf)\
+                                      .filter(Views_Counter.validated==False)
+            if temp:
+                temp = temp.one()
+                media = fetch_row(Media, id=id)
+                print(temp.validated)
+                try:
+                    media.increment_views3()
+                    media.increment_views()
+                    DBSession.commit()
+                except OperationalError:
+                    DBSession.rollback()
+                    return dict(success=False)
+
+                temp.validated = True
+                print(temp.validated)
+                DBSession.commit()
+        except:
+            return dict(success=False)
+        return result(success=True)
 
     @expose('players/iframe.html')
     @observable(events.MediaController.embed_player)

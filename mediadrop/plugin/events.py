@@ -293,6 +293,7 @@ class MediaController(object):
     jwplayer_rtmp_mrss = Event(['**kwargs'])
     rate = Event(['**kwargs'])
     view = Event(['**kwargs'])
+    final_view = Event(['**kwargs'])
 
 class PodcastsController(object):
     index = Event(['**kwargs'])
@@ -354,6 +355,14 @@ class Comment(object):
     after_update = Event(['instance'])
 
 class Category(object):
+    before_delete = Event(['instance'])
+    after_delete = Event(['instance'])
+    before_insert = Event(['instance'])
+    after_insert = Event(['instance'])
+    before_update = Event(['instance'])
+    after_update = Event(['instance'])
+
+class Views_Counter(object):
     before_delete = Event(['instance'])
     after_delete = Event(['instance'])
     before_insert = Event(['instance'])

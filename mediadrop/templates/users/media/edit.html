@@ -12,6 +12,9 @@ See LICENSE.txt in the main project directory, for more information.
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
 <xi:include href="../master.html" />
+<!-- <script type="text/javascript" src="${h.url_for('/scripts/plupload/js/plupload.min.js')}"></script> -->
+<script type="text/javascript" src="${h.url_for('/scripts/plupload/js/moxie.js')}"></script>
+<script type="text/javascript" src="${h.url_for('/scripts/plupload/js/plupload.dev.js')}"></script>
 <head>
 	<title>${media.title and _('Edit') + ': ' + media.title or _('Add New Media')}</title>
 	<link href="${h.url_for('/admin/styles/forms.css')}" media="screen" rel="stylesheet" type="text/css" />
@@ -147,6 +150,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 		<div id="media-files-box" class="box">
 			<div class="box-head"><h1>Files</h1></div>
+			<xi:include href="../../../public/scripts/plupload/examples/custom2.html" />
 			<div class="box-content"><div id="fmgr-open" class="btn block"><span>Add &amp; Manage</span></div></div>
 			<ol id="file-list" class="file-list">
 				<li py:for="file in media.files" class="${file.type}" id="list-file-${file.id}">
@@ -166,9 +170,16 @@ See LICENSE.txt in the main project directory, for more information.
 		<div class="box">
 			<h1 class="box-head">Thumbnail</h1>
 			<div class="box-content">
+				<xi:include href="../../../public/scripts/plupload/examples/custom.html" />
 				<div class="thumb" py:with="thumb = h.thumb(media, 'm')">
 					<img id="thumb-img" alt="Thumb"
 					     src="${thumb.url}" width="${thumb.x}" height="${thumb.y}" />
+			     <script>
+			     	var dt = new Date();
+			     	var a = document.getElementById("thumb-img").src;
+						document.getElementById("thumb-img").src='';
+						document.getElementById("thumb-img").src=a+'?'+dt.getTime();
+			     </script>
 				</div>
 				<div class="center">
 					<form py:replace="thumb_form(css_class='center', action=thumb_action)" />

@@ -52,19 +52,19 @@ var uploader = new plupload.Uploader({
 		}
 	}
 });
-
+console.log('${h.url_for(action='save_thumb')}')
 uploader.init();
 function attachCallbacks(Uploader) {
 uploader.bind('FileUploaded', function(Up, File, Response) {
 
-    if((uploader.total.uploaded + 1) == uploader.files.length)
-   {
-		var dt = new Date();
-		var a = document.getElementById("thumb-img").src;
-		document.getElementById("thumb-img").src='';
-		document.getElementById("thumb-img").src=a+'?'+dt.getTime();
-		console.log(dt.getTime())
-    }
+if((uploader.total.uploaded + 1) == uploader.files.length)
+{
+var dt = new Date();
+var a = document.getElementById("thumb-img").src;
+document.getElementById("thumb-img").src='';
+document.getElementById("thumb-img").src=a+'?'+dt.getTime();
+console.log(dt.getTime())
+}
 });}
 </script>
 </html>
