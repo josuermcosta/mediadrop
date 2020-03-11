@@ -90,20 +90,15 @@ class MediaController(BaseController):
                                    Media.views15 + Media.views18 +
                                    Media.views21 + Media.views24.desc())
 
-        print(media)
-
-        if not filter:
-            pass
-        elif filter == 'unreviewed':
+        if filter == 'unreviewed':
             media = media.reviewed(False)
         elif filter == 'unencoded':
             media = media.reviewed().encoded(False)
         elif filter == 'drafts':
             media = media.drafts()
-        elif filter == 'published':
+        elif filter == 'published' or filter == 'hot':
             media = media.published()
-        elif filter == 'hot':
-            media = media.published()
+
         if category:
             category = fetch_row(Category, slug=category)
             media = media.filter(Media.categories.contains(category))
@@ -172,10 +167,9 @@ class MediaController(BaseController):
         user = request.perm.user.display_name
 
         media = fetch_row(Media, id)
-        if id != 'new':
-            if group != 'admins':
-                if media.author_name != user:
-                    media = fetch_row(Media, 'NONE')
+        if id != 'new' and group != 'admins':
+            if media and media.author_name != user:
+                media = fetch_row(Media, 'NONE')
 
         if tmpl_context.action == 'save' or id == 'new':
             # Use the values from error_handler or GET for new podcast media
@@ -329,16 +323,17 @@ class MediaController(BaseController):
             DBSession.flush()
         else:
             media = fetch_row(Media, id)
+
         try:
             media_file = add_new_media_file(media, file, url)
         except UserStorageError as e:
             return dict(success=False, message=e.message)
+
         if media.slug.startswith('_stub_'):
             media.title = file.filename
             media.slug = get_available_slug(Media, '_stub_' + media.title)
 
         # The thumbs may have been created already by add_new_media_file
-        print('i am here')
         if id == 'new' and not has_thumbs(media):
             create_default_thumbs_for(media)
 
@@ -347,7 +342,7 @@ class MediaController(BaseController):
         # Render some widgets so the XHTML can be injected into the page
         edit_form_xhtml = unicode(edit_file_form.display(
             action=url_for(action='edit_file', id=media.id),
-            file= media_file))
+            file=media_file))
         status_form_xhtml = unicode(update_status_form.display(
             action=url_for(action='update_status', id=media.id),
             media=media))

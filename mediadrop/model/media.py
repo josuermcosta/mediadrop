@@ -177,8 +177,8 @@ views = Table('view_check',metadata,
     Column('view_id', Integer, autoincrement=True, primary_key=True),
     Column('media_id', Integer, ForeignKey('media.id', onupdate='CASCADE', ondelete='CASCADE'), nullable=False),
     Column('csrftoken', Unicode(80), nullable=False),
-    Column('validated',Boolean,default=False, nullable=False),
-    Column('updated_date',DateTime, nullable=False),
+    Column('validated', Boolean, default=False),
+    Column('updated_date', DateTime, default=datetime.now),
     mysql_engine='InnoDB',
     mysql_charset='utf8',
 )
@@ -303,8 +303,6 @@ def _setup_mysql_fulltext_indexes():
 _setup_mysql_fulltext_indexes()
 
 class MediaQuery(Query):
-
-
     def reviewed(self, flag=True):
         return self.filter(Media.reviewed == flag)
 

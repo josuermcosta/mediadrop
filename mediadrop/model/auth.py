@@ -106,6 +106,7 @@ class User(object):
             created = datetime.now(),
         )
         defaults.update(kwargs)
+
         for key, value in defaults.items():
             setattr(user, key, value)
 

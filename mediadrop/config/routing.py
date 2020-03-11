@@ -182,15 +182,7 @@ def add_routes(map):
         controller='admin/users',
         action='edit',
         requirements={'id': r'(\d+|new)'})
-    """
-    map.connect('/admin/groups',
-        controller='admin/groups',
-        action='index')
-    map.connect('/admin/groups/{id}/{action}',
-        controller='admin/groups',
-        action='edit',
-        requirements={'id': r'(\d+|new)'})
-    """
+
     map.connect('/admin/settings/players',
         controller='admin/players',
         action='index')

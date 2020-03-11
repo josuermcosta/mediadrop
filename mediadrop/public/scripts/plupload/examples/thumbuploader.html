@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+	<div id="filelistF">Your browser doesn't have Flash, Silverlight or HTML5 support.</div>
+
+	<div id="containerF">
+	    <a id="pickfilesF" href="javascript:;">[Select files]</a>
+	    <a id="uploadfilesF" href="javascript:;">[Upload files]</a>
+	</div>
+	<pre id="consoleF"></pre>
+
+
+	<script type="text/javascript">
+		// Custom example logic
+
+		var uploader2 = new plupload.Uploader({
+			runtimes : 'html5,flash,silverlight,html4',
+			browse_button : 'pickfilesF', // you can pass an id...
+			container: document.getElementById('containerF'), // ... or DOM Element itself
+			url : '${h.url_for(action='add_file')}',
+			flash_swf_url : '../js/Moxie.swf',
+			silverlight_xap_url : '../js/Moxie.xap',
+			filters : {
+				max_file_size : '10mb',
+				mime_types: [
+					{title : "media files", extensions : "mp3"}
+				]
+			},
+
+			init: {
+				PostInit: function() {
+					document.getElementById('filelistF').innerHTML = '';
+					document.getElementById('uploadfilesF').onclick = function() {
+						uploader2.start();
+						return false;
+					};
+				},
+
+				FilesAdded: function(up, files) {
+					plupload.each(files, function(file) {
+						document.getElementById('filelistF').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
+					});
+				},
+
+				UploadProgress: function(up, file) {
+					document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+				},
+
+				Error: function(up, err) {
+					document.getElementById('consoleF').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+				}
+			}
+		});
+		uploader2.init();
+	</script>
+</html>

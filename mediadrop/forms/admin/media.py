@@ -60,15 +60,19 @@ class WXHValidator(FancyValidator):
             raise Invalid(
                 _('Value must be in the format wxh; e.g. 200x300'),
                 value, state)
+
         errors = []
+
         try:
             width = int(width)
         except ValueError, e:
             errors.append(_('Width must be a valid integer'))
+
         try:
             height = int(height)
         except ValueError, e:
             errors.append(_('Height must be a valid integer'))
+
         if errors:
             raise Invalid(u'; '.join(errors), value, state)
 
@@ -103,7 +107,6 @@ class AddFileForm(ListForm):
     template = 'admin/media/file-add-form.html'
     id = 'add-file-form'
     submit_text = None
-
     event = events.Admin.AddFileForm
 
     fields = [
@@ -121,7 +124,6 @@ class EditFileForm(ListForm):
     submit_text = None
     _name = 'fileeditform'
     params = ['file']
-
     event = events.Admin.EditFileForm
 
     class fields(WidgetsList):
@@ -140,15 +142,12 @@ class MediaForm(ListForm):
     submit_text = None
     show_children_errors = True
     _name = 'media-form' # TODO: Figure out why this is required??
-
     event = events.Admin.MediaForm
 
     fields = [
         SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'], help_text=N_('Optional'), options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all()),
         TextField('slug', label_text=N_('Permalink'), maxlength=50),
         TextField('title', label_text=N_('Title'), validator=TextField.validator(not_empty=True), maxlength=255),
-        #TextField('author_name', label_text=N_('Author Name'), maxlength=50),
-        #TextField('author_email', label_text=N_('Author Email'), validator=email_validator(not_empty=True), maxlength=255),
         XHTMLTextArea('description', label_text=N_('Description'), attrs=dict(rows=5, cols=25)),
         CategoryCheckBoxList('categories', label_text=N_('Categories'), options=lambda: DBSession.query(Category.id, Category.name).all()),
         TextArea('tags', label_text=N_('Tags'), attrs=dict(rows=3, cols=15), help_text=N_(u'e.g.: puppies, great dane, adorable')),
@@ -170,7 +169,6 @@ class UpdateStatusForm(Form):
     params = ['media']
     media = None
     _name = 'usf'
-
     event = events.Admin.UpdateStatusForm
 
     class fields(WidgetsList):

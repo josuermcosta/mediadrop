@@ -8,8 +8,8 @@ from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import expose, observable
 from mediadrop.model import Comment, Media
 from mediadrop.plugin import events
-
 import logging
+
 log = logging.getLogger(__name__)
 
 class IndexController(BaseController):

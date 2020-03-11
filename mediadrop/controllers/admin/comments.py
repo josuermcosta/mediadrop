@@ -9,7 +9,7 @@ Comment Moderation Controller
 """
 
 from pylons import request
-from sqlalchemy import orm,or_
+from sqlalchemy import orm, or_
 
 from mediadrop.forms.admin import SearchForm
 from mediadrop.forms.admin.comments import EditCommentForm
@@ -36,7 +36,7 @@ class CommentsController(BaseController):
                 'admin/comments/index-table.html')
     @paginate('comments', items_per_page=25)
     @observable(events.Admin.CommentsController.index)
-    def index(self, page=1, search=None, media_filter=None,type=None, **kwargs):
+    def index(self, page=1, search=None, type=None, **kwargs):
         """List comments with pagination and filtering.
 
         :param page: Page number, defaults to 1.
@@ -76,16 +76,9 @@ class CommentsController(BaseController):
         if search is not None:
             comments = comments.search(search)
 
-        media_filter_title = media_filter
-        if media_filter is not None:
-            comments = comments.filter(Comment.media.has(Media.id == media_filter))
-            media_filter_title = Media.query.filter(Media.id == media_filter)
-            for each in media_filter_title:
-                media_filter_title = each.title
-            media_filter = int(media_filter)
-        else:
-            if group != 'admins':
-                comments = comments.filter(or_(Comment.author_name == user,Comment.media.has(Media.author_name == user)))
+        # If we do implement a search by podcast on the comments do it using those variables.
+        media_filter_title = None
+        media_filter = None
 
         return dict(
             comments = comments,
@@ -137,13 +130,12 @@ class CommentsController(BaseController):
 
         for comment in comments:
             auth = Media.query.filter(Media.id == comment.media_id)
+
             for each in auth:
-                if (group == 'admins' or each.author_name == user) and (publishable == False):
+                if group == 'admins' or each.author_name == user:
                     comment.reviewed = True
-                    comment.publishable = False
-                if (group == 'admins' or each.author_name == user) and (publishable == True):
-                    comment.reviewed = True
-                    comment.publishable = True
+                    comment.publishablep = publishable
+
             DBSession.add(comment)
 
         DBSession.flush()

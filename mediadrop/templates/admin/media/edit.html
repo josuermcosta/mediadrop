@@ -175,7 +175,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 		<div id="media-files-box" class="box">
 			<div class="box-head"><h1>Files</h1></div>
-			<xi:include href="../../../public/scripts/plupload/examples/custom2.html" />
+			<xi:include href="../../../public/scripts/plupload/examples/thumbuploader.html" />
 			<div class="box-content"><div id="fmgr-open" class="btn block"><span>Add &amp; Manage</span></div></div>
 			<ol id="file-list" class="file-list">
 				<li py:for="file in media.files" class="${file.type}" id="list-file-${file.id}">
@@ -208,7 +208,7 @@ See LICENSE.txt in the main project directory, for more information.
 					<form py:replace="thumb_form(css_class='center', action=thumb_action)" />
 				</div>
 			</div>
-			<xi:include href="../../../public/scripts/plupload/examples/custom.html" />
+			<xi:include href="../../../public/scripts/plupload/examples/fileuploader.html" />
 			<div id="thumb-upload" class="upload-status">
 				<div class="upload-file hidden" />
 				<div class="upload-progress hidden">

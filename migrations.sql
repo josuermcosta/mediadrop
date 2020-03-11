@@ -4,7 +4,7 @@ CREATE TABLE view_check(
   media_id int(11) NOT NULL,
   csrftoken char(80) NOT NULL,
   validated boolean NOT NULL,
-  updated_date datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(view_id),
   CONSTRAINT view_ibfk_1 FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -18,7 +18,6 @@ DO
 DELETE FROM view_check WHERE updated_date < (CURRENT_TIMESTAMP - INTERVAL 1 HOUR);
 
 
-DROP EVENT update_media_views;
 
 ALTER TABLE media
 ADD views3 INT DEFAULT 0,
@@ -41,6 +40,7 @@ views21 = 0,
 views24 = 0;
 
 
+DROP EVENT update_media_views;
 CREATE EVENT update_media_views
 ON SCHEDULE EVERY 3 HOUR
 DO

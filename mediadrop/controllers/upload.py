@@ -1,4 +1,4 @@
-    # This file is a part of MediaDrop (https://www.mediadrop.video),
+# This file is a part of MediaDrop (https://www.mediadrop.video),
 # Copyright 2009-2018 MediaDrop contributors
 # For the exact contribution history, see the git revision log.
 # The source code contained in this file is licensed under the GPLv3 or
@@ -70,8 +70,9 @@ class UploadController(BaseController):
         else:
             aux = aux.all()
 
-        upload_form.children._widget_lst[0] = SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'],
-                                                                     options=lambda: aux)
+        s = SingleSelectField('podcast', label_text=N_('Include in the Podcast'),
+                              css_classes=['dropdown-select'], options=lambda: aux)
+        upload_form.children._widget_lst[0] = s
         return dict(
             legal_wording = request.settings['wording_user_uploads'],
             support_email = support_email,
@@ -158,8 +159,10 @@ class UploadController(BaseController):
         kwargs.setdefault('name')
         name = request.perm.user.display_name
         email_X = request.perm.user.email_address
-        podcasts = DBSession.query(Podcast.id).filter(Podcast.author_name == name).filter(Podcast.id == kwargs['podcast']).all()
-        if(podcasts == []):
+        podcasts = DBSession.query(Podcast.id).filter(Podcast.author_name == name)\
+                                              .filter(Podcast.id == kwargs['podcast'])\
+                                              .all()
+        if not podcasts:
             redirect(action='failure')
 
         # Save the media_obj!
@@ -185,7 +188,6 @@ class UploadController(BaseController):
 
     def save_media_obj(self, name, email, title, description, tags, uploaded_file, podcast_include):
         # create our media object as a status-less placeholder initially
-        print(podcast_include)
         if uploaded_file.filename[-3:] == 'mp3':
             media_obj = Media()
             media_obj.author = Author(name, email)
@@ -193,8 +195,10 @@ class UploadController(BaseController):
             media_obj.slug = get_available_slug(Media, title)
             media_obj.description = description
             media_obj.podcast_id = podcast_include
+
             if request.settings['wording_display_administrative_notes']:
                 media_obj.notes = request.settings['wording_administrative_notes']
+
             media_obj.set_tags(tags)
 
             # Give the Media object an ID.

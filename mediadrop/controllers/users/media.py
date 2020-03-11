@@ -12,14 +12,20 @@ from mediadrop.lib import helpers
 from mediadrop.lib.auth import has_permission
 from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
-    observable, paginate, validate, validate_xhr)
+                                      observable, paginate, validate,
+                                      validate_xhr)
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.lib.i18n import _
 from mediadrop.lib.storage import add_new_media_file, UserStorageError
 from mediadrop.lib.templating import render
-from mediadrop.lib.thumbnails import thumb_path, thumb_paths, create_thumbs_for, create_default_thumbs_for, has_thumbs, has_default_thumbs, delete_thumbs
-from mediadrop.model import (Author, Category, Media, Podcast, Tag, fetch_row,
-    get_available_slug, slugify)
+from mediadrop.lib.thumbnails import (thumb_path, thumb_paths,
+                                      create_thumbs_for,
+                                      create_default_thumbs_for,
+                                      has_thumbs, has_default_thumbs,
+                                      delete_thumbs)
+from mediadrop.model import (Author, Category, Media, Podcast,
+                             Tag, fetch_row,
+                             get_available_slug, slugify)
 from mediadrop.model.meta import DBSession
 from mediadrop.plugin import events
 
@@ -72,9 +78,7 @@ class MediaController(BaseController):
                          .order_by(Media.publish_on.desc(),
                                    Media.modified_on.desc())
 
-        if not filter:
-            pass
-        elif filter == 'unreviewed':
+        if filter == 'unreviewed':
             media = media.reviewed(False)
         elif filter == 'unencoded':
             media = media.reviewed().encoded(False)
@@ -82,12 +86,15 @@ class MediaController(BaseController):
             media = media.drafts()
         elif filter == 'published':
             media = media.published()
+
         if category:
             category = fetch_row(Category, slug=category)
             media = media.filter(Media.categories.contains(category))
+
         if tag:
             tag = fetch_row(Tag, slug=tag)
             media = media.filter(Media.tags.contains(tag))
+
         if podcast:
             podcast = fetch_row(Podcast, slug=podcast)
             media = media.filter(Media.podcast == podcast)
@@ -154,7 +161,6 @@ class MediaController(BaseController):
             if media.author_name != user:
                 media = fetch_row(Media, 'NONE')
             # Pull the defaults from the media item
-        print('cheguei aqui')
         if tmpl_context.action == 'save' or id == 'new':
             # Use the values from error_handler or GET for new podcast media
             media_values = kwargs
@@ -246,16 +252,17 @@ class MediaController(BaseController):
             DBSession.flush()
         else:
             media = fetch_row(Media, id)
+
         try:
             media_file = add_new_media_file(media, file, url)
         except UserStorageError as e:
             return dict(success=False, message=e.message)
+
         if media.slug.startswith('_stub_'):
             media.title = file.filename
             media.slug = get_available_slug(Media, '_stub_' + media.title)
 
         # The thumbs may have been created already by add_new_media_file
-        print('i am here')
         if id == 'new' and not has_thumbs(media):
             create_default_thumbs_for(media)
 
@@ -312,8 +319,10 @@ class MediaController(BaseController):
             slug = slugify(title)
         elif slug.startswith('_stub_'):
             slug = slug[len('_stub_'):]
+
         if slug != media.slug:
             media.slug = get_available_slug(Media, slug, media)
+
         media.title = title
         media.author = Author(author_name, author_email)
         media.description = description
@@ -384,8 +393,10 @@ class MediaController(BaseController):
             message = None
         except IOError, e:
             success = False
+
             if id == 'new':
                 DBSession.delete(media)
+
             if e.errno == 13:
                 message = _('Permission denied, cannot write file')
             elif e.message == 'cannot identify image file':
@@ -395,11 +406,11 @@ class MediaController(BaseController):
                 message = _('Interlaced PNGs are not supported.')
             else:
                 raise
+
         except Exception:
             if id == 'new':
                 DBSession.delete(media)
             raise
-
 
         return dict(
             success = success,

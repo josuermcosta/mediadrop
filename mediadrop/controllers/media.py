@@ -227,9 +227,12 @@ class MediaController(BaseController):
                 temp = Views_Counter()
                 temp.media_id = media.id
                 temp.csrftoken = csrf
+                print(temp)
+                print(vars(temp))
                 DBSession.add(temp)
                 DBSession.commit()
             except:
+                print(2)
                 DBSession.rollback()
 
         if request.settings['comments_engine'] == 'facebook':
@@ -251,15 +254,16 @@ class MediaController(BaseController):
     @autocommit
     @observable(events.MediaController.final_view)
     def final_view(self,id,**kwargs):
+        print('hello')
         try:
             csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
             temp = Views_Counter.query.filter(Views_Counter.media_id==id)\
                                       .filter(Views_Counter.csrftoken==csrf)\
                                       .filter(Views_Counter.validated==False)
+            print(csrf)
             if temp:
                 temp = temp.one()
                 media = fetch_row(Media, id=id)
-                print(temp.validated)
                 try:
                     media.increment_views3()
                     media.increment_views()
@@ -269,11 +273,10 @@ class MediaController(BaseController):
                     return dict(success=False)
 
                 temp.validated = True
-                print(temp.validated)
-                DBSession.commit()
+                DBSession.flush()
         except:
             return dict(success=False)
-        return result(success=True)
+        return dict(success=True)
 
     @expose('players/iframe.html')
     @observable(events.MediaController.embed_player)
@@ -364,10 +367,7 @@ class MediaController(BaseController):
         c = Comment()
 
         aux = DBSession.query(User).filter(User.display_name == name)
-        i = 0
-        for each in aux:
-            i = 1
-            break
+
 
         require_review = request.settings['req_comment_approval']
         if not require_review:
@@ -377,10 +377,9 @@ class MediaController(BaseController):
         if request.perm.user.display_name != "Anonymous User":
             name = request.perm.user.display_name
             email = request.perm.user.email_address
-            if i != 1:
+            if aux:
                 name = filter_vulgarity(name)
                 c.author = AuthorWithIP(name, email, request.environ['REMOTE_ADDR'])
-            else:
                 if require_review:
                     message = _('Username in use, please login to make a comment ')
                     return result(True, message=message)

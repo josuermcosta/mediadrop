@@ -6,6 +6,7 @@
 # See LICENSE.txt in the main project directory, for more information.
 
 import os
+import logging
 
 from pylons import request, tmpl_context
 from sqlalchemy import orm
@@ -15,16 +16,15 @@ from mediadrop.forms.admin.podcasts import PodcastForm
 from mediadrop.lib.auth import has_permission
 from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
-    observable, paginate, validate)
+                                      observable, paginate, validate)
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.lib.i18n import _
 from mediadrop.lib.thumbnails import (create_default_thumbs_for,
-    create_thumbs_for, delete_thumbs)
+                                      create_thumbs_for, delete_thumbs)
 from mediadrop.model import Author, Podcast, fetch_row, get_available_slug
 from mediadrop.model.meta import DBSession
 from mediadrop.plugin import events
 
-import logging
 log = logging.getLogger(__name__)
 
 podcast_form = PodcastForm()
@@ -160,6 +160,7 @@ class PodcastsController(BaseController):
 
         if not slug:
             slug = title
+
         if slug != podcast.slug:
             podcast.slug = get_available_slug(Podcast, slug, podcast)
 
@@ -178,7 +179,7 @@ class PodcastsController(BaseController):
             DBSession.flush()
             create_default_thumbs_for(podcast)
         else:
-                podcast.author = Author(podcast.author.name, podcast.author.email)
+            podcast.author = Author(podcast.author.name, podcast.author.email)
 
         redirect(action='edit', id=podcast.id)
 

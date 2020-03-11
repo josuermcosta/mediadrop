@@ -39,8 +39,6 @@ class UploadForm(ListForm):
     event = events.UploadForm
 
     class fields(WidgetsList):
-        #name = TextField(validator=validators['name'], label_text=N_('Your Name:'), maxlength=50,)
-        #email = TextField(validator=email_validator(not_empty=True), label_text=N_('Your Email:'), help_text=N_('(will never be published)'), maxlength=255)
         podcast_include = SingleSelectField('podcast', label_text=N_('Include in the Podcast'), css_classes=['dropdown-select'],
                                                                      options=lambda: [(None, None)] + DBSession.query(Podcast.id, Podcast.title).all())
         title = TextField(validator=validators['title'], label_text=N_('Title:'), maxlength=255)

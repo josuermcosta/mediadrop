@@ -89,8 +89,7 @@ class PodcastsController(BaseController):
         podcast = fetch_row(Podcast, id)
 
         if id != 'new' and (user != podcast.author.name and group != 'admins'):
-            return dict(
-            )
+            return dict()
 
         if tmpl_context.action == 'save' or id == 'new':
             form_values = kwargs
@@ -116,7 +115,6 @@ class PodcastsController(BaseController):
                     feedburner_url = podcast.feedburner_url,
                 ),
             )
-        print(32)
 
         return dict(
             podcast = podcast,
@@ -148,8 +146,9 @@ class PodcastsController(BaseController):
         group = request.perm.user.groups[0].group_name
         podcast = fetch_row(Podcast, id)
 
-        if podcast.author.name != user or group != 'admins':
-            redirect(action='index')
+        if podcast:
+            if group != 'admins' and  podcast.author.name != user:
+                redirect(action='index')
 
         if delete:
             DBSession.delete(podcast)

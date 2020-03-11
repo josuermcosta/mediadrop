@@ -73,7 +73,6 @@ def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
     :returns: A rendered player.
     """
     player = preferred_player_for_media(media, **kwargs)
-    print(media.get_uris())
     return render('players/html5_or_flash.html', {
         'player': player,
         'media': media,

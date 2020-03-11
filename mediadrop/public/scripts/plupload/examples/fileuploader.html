@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+	<div id="filelist">Your browser doesn't have Flash, Silverlight or HTML5 support.</div>
+
+	<div id="container">
+	  <a id="pickfiles" href="javascript:;">[Select files]</a>
+	  <a id="uploadfiles" href="javascript:;">[Upload files]</a>
+	</div>
+	<pre id="console"></pre>
+	<script type="text/javascript">
+	// Custom example logic
+
+		var uploader = new plupload.Uploader({
+			runtimes : 'html5,flash,silverlight,html4',
+			browse_button : 'pickfiles', // you can pass an id...
+			container: document.getElementById('container'), // ... or DOM Element itself
+			url : '${h.url_for(action='save_thumb')}',
+			flash_swf_url : '../js/Moxie.swf',
+			silverlight_xap_url : '../js/Moxie.xap',
+			preinit: attachCallbacks,
+			filters : {
+				max_file_size : '10mb',
+				mime_types: [
+					{title : "Image files", extensions : "jpg,gif,png"},
+					{title : "Zip files", extensions : "zip"}
+				]
+			},
+
+			init: {
+				PostInit: function() {
+					document.getElementById('filelist').innerHTML = '';
+					document.getElementById('uploadfiles').onclick = function() {
+						uploader.start();
+						return false;
+					};
+				},
+
+				FilesAdded: function(up, files) {
+					plupload.each(files, function(file) {
+						document.getElementById('filelist').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
+					});
+				},
+
+				UploadProgress: function(up, file) {
+					document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+				},
+
+				Error: function(up, err) {
+					document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+				}
+			}
+		});
+		uploader.init();
+		function attachCallbacks(Uploader) {
+		uploader.bind('FileUploaded', function(Up, File, Response) {
+			if ((uploader.total.uploaded + 1) == uploader.files.length) {
+					var dt = new Date();
+					var a = document.getElementById("thumb-img").src;
+					document.getElementById("thumb-img").src='';
+					document.getElementById("thumb-img").src=a+'?'+dt.getTime();
+					console.log(dt.getTime())
+				}
+			});
+		}
+	</script>
+</html>

@@ -74,7 +74,6 @@ def fetch_row(mapped_class, pk=None, extra_filter=None, **kwargs):
     :raises webob.exc.HTTPNotFound: If no result is found
 
     """
-    print(kwargs)
     if pk == 'new':
         inst = mapped_class()
         return inst

@@ -1,13 +1,3 @@
-# This file is a part of MediaDrop (https://www.mediadrop.video),
-# Copyright 2009-2018 MediaDrop contributors
-# For the exact contribution history, see the git revision log.
-# The source code contained in this file is licensed under the GPLv3 or
-# (at your option) any later version.
-# See LICENSE.txt in the main project directory, for more information.
-"""
-Comment Moderation Controller
-"""
-
 from pylons import request
 from sqlalchemy import orm, or_
 
@@ -16,13 +6,13 @@ from mediadrop.forms.admin.comments import EditCommentForm
 from mediadrop.lib.auth import has_permission
 from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
-    observable, paginate)
+                                      observable, paginate)
 from mediadrop.lib.helpers import redirect, url_for
 from mediadrop.model import Comment, Media, fetch_row
 from mediadrop.model.meta import DBSession
 from mediadrop.plugin import events
-
 import logging
+
 log = logging.getLogger(__name__)
 
 edit_form = EditCommentForm()
@@ -34,7 +24,7 @@ class CommentsController(BaseController):
                 'users/comments/index-table.html')
     @paginate('comments', items_per_page=25)
     @observable(events.Admin.CommentsController.index)
-    def index(self, page=1, search=None, media_filter=None,type=None, **kwargs):
+    def index(self, page=1, search=None, media_filter=None, type=None, **kwargs):
         """List comments with pagination and filtering.
 
         :param page: Page number, defaults to 1.
@@ -70,16 +60,13 @@ class CommentsController(BaseController):
         # It will need re-evaluation if we ever add others.
         comments = comments.options(orm.eagerload('media'))
 
-        if search is not None:
+        if search:
             comments = comments.search(search)
 
         comments = comments.filter(or_(Comment.author_name == user,Comment.media.has(Media.author_name == user)))
 
-        media_filter_title = media_filter
-        if media_filter is not None:
-            comments = comments.filter()
-            media_filter_title = DBSession.query(Media.title).get(media_filter)
-            media_filter = int(media_filter)
+        media_filter_title = None
+        media_filter = None
 
         return dict(
             comments = comments,
