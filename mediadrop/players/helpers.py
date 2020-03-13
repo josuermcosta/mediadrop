@@ -42,6 +42,7 @@ def preferred_player_for_media(media, **kwargs):
     return player_cls(media, playable_uris, **kwargs)
 
 
+
 def media_player(media, is_widescreen=False, show_like=True, show_dislike=True,
                  show_download=False, show_embed=False, show_playerbar=True,
                  show_popout=True, show_resize=False, show_share=True,

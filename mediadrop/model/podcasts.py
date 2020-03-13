@@ -16,7 +16,7 @@ SQLAlchemy ORM definitions for:
 
 """
 from datetime import datetime
-from sqlalchemy import Table, ForeignKey, Column, sql
+from sqlalchemy import Table, ForeignKey, Column, sql, Index
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean, Float
 from sqlalchemy.orm import mapper, relation, backref, synonym, composite, validates, dynamic_loader, column_property
 from pylons import request
@@ -85,6 +85,7 @@ podcasts = Table('podcasts', metadata,
     mysql_charset='utf8',
 )
 
+i = Index('idx_p_user', podcasts.c.author_name)
 
 class Podcast(object):
     """

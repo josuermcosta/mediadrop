@@ -27,6 +27,7 @@ See LICENSE.txt in the main project directory, for more information.
 
 	<div py:if="player" id="${player.elem_id}-wrapper" class="mcore-player">
 		<div class="mcore-playerbox">
+			${player}
 			${player.render_markup()}
 		</div>
 		<div py:if="show_playerbar" class="mcore-playerbar">
@@ -52,7 +53,7 @@ See LICENSE.txt in the main project directory, for more information.
 					        </span>
 					        <span class="mcore-nav-link-sep" py:if="not show_dislike" />
 						</li>
-						
+
 						<li py:if="show_dislike" class="${not show_like and 'mcore-nav-left' or None}">
 					        <span class="mcore-nav-link mcore-dislike mcore-cursor-pointer">
 					            <span>

@@ -218,8 +218,8 @@ class MediaController(BaseController):
                 redirect(podcast_slug=media.podcast.slug)
 
         views = Views_Counter.query.filter(Views_Counter.media_id == media.id)
-        csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
-        views = views.filter(Views_Counter.csrftoken == csrf)
+        #csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
+        #views = views.filter(Views_Counter.csrftoken == csrf)
         views = views.all()
 
         if not views:
@@ -232,7 +232,6 @@ class MediaController(BaseController):
                 DBSession.add(temp)
                 DBSession.commit()
             except:
-                print(2)
                 DBSession.rollback()
 
         if request.settings['comments_engine'] == 'facebook':
@@ -257,8 +256,8 @@ class MediaController(BaseController):
         print('hello')
         try:
             csrf = kwargs['environ']['paste.cookies'][0]['csrftoken'].value
+#                                     .filter(Views_Counter.csrftoken==csrf)\
             temp = Views_Counter.query.filter(Views_Counter.media_id==id)\
-                                      .filter(Views_Counter.csrftoken==csrf)\
                                       .filter(Views_Counter.validated==False)
             print(csrf)
             if temp:
@@ -380,11 +379,6 @@ class MediaController(BaseController):
             if aux:
                 name = filter_vulgarity(name)
                 c.author = AuthorWithIP(name, email, request.environ['REMOTE_ADDR'])
-                if require_review:
-                    message = _('Username in use, please login to make a comment ')
-                    return result(True, message=message)
-                else:
-                    return result(True, comment=c)
 
         c.subject = 'Re: %s' % media.title
         c.body = filter_vulgarity(body)

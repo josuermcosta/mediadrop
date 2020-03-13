@@ -1,3 +1,7 @@
+CREATE INDEX idx_c_user ON comments (author_name);
+CREATE INDEX idx_m_user ON media (author_name);
+CREATE INDEX idx_p_user ON podcasts (author_name);
+
 drop table view_check;
 CREATE TABLE view_check(
   view_id int(11) NOT NULL AUTO_INCREMENT,
@@ -16,8 +20,6 @@ CREATE EVENT reset_views
 ON SCHEDULE EVERY 10 MINUTE
 DO
 DELETE FROM view_check WHERE updated_date < (CURRENT_TIMESTAMP - INTERVAL 1 HOUR);
-
-
 
 ALTER TABLE media
 ADD views3 INT DEFAULT 0,
@@ -38,7 +40,6 @@ views15 = 0,
 views18 = 0,
 views21 = 0,
 views24 = 0;
-
 
 DROP EVENT update_media_views;
 CREATE EVENT update_media_views

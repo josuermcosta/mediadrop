@@ -22,7 +22,7 @@ belongs to a :class:`mediadrop.model.podcasts.Podcast`.
 
 from datetime import datetime
 
-from sqlalchemy import Table, ForeignKey, Column, event, sql
+from sqlalchemy import Table, ForeignKey, Column, event, sql, Index
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import (attributes, backref, class_mapper, column_property,
     composite, dynamic_loader, mapper, Query, relation, validates)
@@ -42,6 +42,7 @@ from mediadrop.model.authors import Author
 from mediadrop.model.categories import Category, CategoryList
 from mediadrop.model.comments import Comment, CommentQuery, comments
 from mediadrop.model.tags import Tag, TagList, extract_tags, fetch_and_create_tags
+from mediadrop.lib.thumbnails import thumb
 from mediadrop.players import pick_any_media_file, pick_podcast_media_file
 from mediadrop.plugin import events
 
@@ -172,6 +173,8 @@ media = Table('media', metadata,
     mysql_engine='InnoDB',
     mysql_charset='utf8',
 )
+
+i = Index('idx_m_user', media.c.author_name)
 
 views = Table('view_check',metadata,
     Column('view_id', Integer, autoincrement=True, primary_key=True),
@@ -652,6 +655,28 @@ class Media(object):
         for file in self.files:
             uris.extend(file.get_uris())
         return uris
+
+    def audio(self):
+        uris = []
+        for file in self.files:
+            uri = file.get_uris()
+            element = {
+                "url": str(uri[0])
+                "mimeType": str(file.mimetype)
+                "size": str(int(file.size))
+                "title": str(file.media.title)
+            }
+            uris.append(element)
+        return str(uris)
+
+    def show(self):
+        showtime = {
+            'title': str(self.title),
+            'subtitle': "",
+            'publicationDate': self.publish_on.strftime('%Y-%m-%dT%H:%M:%S+00:00'),
+            'poster': thumb(self,'m')['url']
+        }
+        return str(showtime)
 
 class MediaFileQuery(Query):
     pass

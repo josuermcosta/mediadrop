@@ -14,7 +14,7 @@ from mediadrop.lib.base import BaseController
 from mediadrop.lib.decorators import (autocommit, expose, expose_xhr,
     observable, paginate, validate)
 from mediadrop.lib.helpers import redirect, url_for
-from mediadrop.model import Group, User, fetch_row
+from mediadrop.model import Group, User, fetch_row, Comment, Media, Podcast
 from mediadrop.model.meta import DBSession
 from mediadrop.plugin import events
 
@@ -108,6 +108,14 @@ class UsersController(BaseController):
         user = fetch_row(User, id)
 
         if delete:
+            all_deletes = dict(
+            comments = Comment.query.filter(Comment.author_name == user.user_name),
+            podcasts = Podcast.query.filter(Podcast.author_name == user.user_name),
+            medias = Media.query.filter(Media.author_name == user.user_name))
+
+            for need_delete in all_deletes:
+                for element in all_deletes[need_delete]:
+                    DBSession.delete(element)
             DBSession.delete(user)
             redirect(action='index', id=None)
 
@@ -152,6 +160,15 @@ class UsersController(BaseController):
         :returns: Redirect back to :meth:`index` after successful delete.
         """
         user = fetch_row(User, id)
+        all_deletes = dict(
+        comments = Comment.query.filter(Comment.author_name == user.user_name),
+        podcasts = Podcast.query.filter(Podcast.author_name == user.user_name),
+        medias = Media.query.filter(Media.author_name == user.user_name))
+
+        for need_delete in all_deletes:
+            print(need_delete)
+            for element in all_deletes[need_delete]:
+                DBSession.delete(element)
         DBSession.delete(user)
 
         if request.is_xhr:

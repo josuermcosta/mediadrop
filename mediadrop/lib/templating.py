@@ -73,6 +73,7 @@ def render(template, tmpl_vars=None, method=None):
     """
     if tmpl_vars is None:
         tmpl_vars = {}
+
     assert isinstance(tmpl_vars, dict), \
         'tmpl_vars must be a dict or None, given: %r' % tmpl_vars
 

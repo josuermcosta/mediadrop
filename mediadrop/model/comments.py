@@ -15,7 +15,7 @@ Comments come with two status flags:
 
 """
 from datetime import datetime
-from sqlalchemy import Table, ForeignKey, Column, sql
+from sqlalchemy import Table, ForeignKey, Column, sql, Index
 from sqlalchemy.types import BigInteger, Boolean, DateTime, Integer, Unicode, UnicodeText
 from sqlalchemy.orm import mapper, relation, backref, synonym, composite, column_property, validates, interfaces, Query
 
@@ -39,6 +39,7 @@ comments = Table('comments', metadata,
     mysql_engine='InnoDB',
     mysql_charset='utf8',
 )
+i = Index('idx_c_user', comments.c.author_name)
 
 class CommentQuery(Query):
     def published(self, flag=True):

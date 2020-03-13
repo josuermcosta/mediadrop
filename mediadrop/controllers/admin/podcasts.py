@@ -146,7 +146,7 @@ class PodcastsController(BaseController):
         group = request.perm.user.groups[0].group_name
         podcast = fetch_row(Podcast, id)
 
-        if podcast:
+        if id != 'new' and author in podcast:
             if group != 'admins' and  podcast.author.name != user:
                 redirect(action='index')
 
@@ -165,6 +165,7 @@ class PodcastsController(BaseController):
             slug = title
         if slug != podcast.slug:
             podcast.slug = get_available_slug(Podcast, slug, podcast)
+
         podcast.title = title
         podcast.subtitle = subtitle
         podcast.description = description

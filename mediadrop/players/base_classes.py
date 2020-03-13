@@ -142,16 +142,16 @@ class AbstractPlayer(AbstractClass):
 
         """
         return pick_uris(self.uris, **kwargs)
-    
+
     @classmethod
     def inject_in_db(cls, enable_player=False):
         from mediadrop.model import DBSession
         from mediadrop.model.players import players as players_table, PlayerPrefs
-        
+
         prefs = PlayerPrefs()
         prefs.name = cls.name
         prefs.enabled = enable_player
-        
+
         # MySQL does not allow referencing the same table in a subquery
         # (i.e. insert, max): http://stackoverflow.com/a/14302701/138526
         # Therefore we need to alias the table in max
@@ -164,7 +164,7 @@ class AbstractPlayer(AbstractClass):
             1
         )
         prefs.priority = new_priority_query
-        
+
         prefs.created_on = datetime.now()
         prefs.modified_on = datetime.now()
         prefs.data = cls.default_data

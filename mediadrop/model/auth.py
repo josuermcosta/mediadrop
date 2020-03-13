@@ -7,7 +7,7 @@
 import os
 from datetime import datetime
 
-from sqlalchemy import Table, ForeignKey, Column, not_
+from sqlalchemy import Table, ForeignKey, Column, not_, Index
 from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import mapper, relation, synonym
 
@@ -25,6 +25,7 @@ users = Table('users', metadata,
     mysql_engine='InnoDB',
     mysql_charset='utf8',
 )
+
 
 users_groups = Table('users_groups', metadata,
     Column('user_id', Integer, ForeignKey('users.user_id',

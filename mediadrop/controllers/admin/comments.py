@@ -130,11 +130,10 @@ class CommentsController(BaseController):
 
         for comment in comments:
             auth = Media.query.filter(Media.id == comment.media_id)
-
             for each in auth:
                 if group == 'admins' or each.author_name == user:
                     comment.reviewed = True
-                    comment.publishablep = publishable
+                    comment.publishable = publishable
 
             DBSession.add(comment)
 
